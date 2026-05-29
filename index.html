@@ -1,554 +1,429 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Arauco México · FX & Hedging Strategy — Shield Consulting</title>
-  <meta name="description" content="Macroeconomic environment, FX exposure and a combined derivatives hedging strategy for Arauco México's urea and methanol purchases.">
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-
-  <!-- Plotly (interactive, responsive, Wix-compatible) -->
-  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
-
-  <!-- BUILD:CSS  (build_static.py inlines style.css here for the Wix single-file export) -->
-  <style>
-/* ============================================================================
-   Shield Consulting / Arauco Mexico microsite
-   Visual identity (shared with Deliverables 3 & 4):
-     navy   #0A2540   gold #C9A961   off-white #F7F4EE   ink #2C2C2C
-   This file is self-contained: paste it into a Wix "Custom CSS" block, or let
-   build_static.py inline it into dist/index.html for a single-file embed.
-   ========================================================================== */
-
-:root {
-  --navy: #0A2540;
-  --navy-soft: #143b5e;
-  --gold: #C9A961;
-  --gold-soft: #e3d2a6;
-  --cream: #F7F4EE;
-  --cream-deep: #efe9dc;
-  --ink: #2C2C2C;
-  --muted: #6b6960;
-  --line: #E5E0D5;
-  --pos: #3D8B5A;
-  --neg: #B33A3A;
-  --shadow: 0 2px 14px rgba(10, 37, 64, 0.08);
-  --shadow-lg: 0 10px 40px rgba(10, 37, 64, 0.14);
-  --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
-  --sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arauco México · FX & Hedging Strategy</title>
+<meta name="description" content="Macroeconomic environment, FX exposure and a combined derivatives hedging strategy for Arauco México's urea and methanol purchases.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+<style>
+/* ============================================================
+   Minimalist palette
+   ink #1B1B1B · warm white #FBFBF9 · line #EAEAE6
+   single accent: muted sage #4F6F64
+   ============================================================ */
+:root{
+  --bg:#FBFBF9; --surface:#FFFFFF; --ink:#1B1B1B; --muted:#6E6E6A;
+  --line:#EAEAE6; --line-strong:#DBDBD5;
+  --accent:#4F6F64; --accent-soft:#EEF2F0; --taupe:#B8AE9C;
+  --pos:#3F7A5A; --neg:#B0584C;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);
+  line-height:1.7;font-weight:400;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-weight:600;line-height:1.15;letter-spacing:-.01em;margin:0 0 .5em;color:var(--ink);}
+h1{font-size:clamp(2.1rem,5vw,3.4rem);font-weight:600;letter-spacing:-.02em;}
+h2{font-size:clamp(1.5rem,3vw,2.1rem);}
+h3{font-size:1.15rem;}
+p{margin:0 0 1rem;}
+a{color:var(--accent);text-decoration:none;}
+.wrap{width:min(1080px,90vw);margin:0 auto;}
+.eyebrow{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+.muted{color:var(--muted);}
 
-* { box-sizing: border-box; }
+/* ---- nav ---- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(251,251,249,.85);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;}
+.brand{display:flex;align-items:center;gap:.55rem;font-weight:600;font-size:1rem;
+  letter-spacing:-.01em;color:var(--ink);cursor:pointer;}
+.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
+.nav-links{display:flex;gap:1.6rem;list-style:none;margin:0;padding:0;}
+.nav-links a{color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;
+  padding-bottom:2px;border-bottom:1.5px solid transparent;transition:color .2s,border-color .2s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-links a.current{color:var(--ink);border-color:var(--accent);}
+.nav-toggle{display:none;background:none;border:0;cursor:pointer;flex-direction:column;gap:5px;padding:6px;}
+.nav-toggle span{width:22px;height:1.5px;background:var(--ink);display:block;}
 
-html { scroll-behavior: smooth; scroll-padding-top: 78px; }
+/* ---- views ---- */
+main{padding-top:62px;}
+.view{display:none;animation:fade .4s ease;}
+.view.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.sec{padding:72px 0;}
+.sec-head{max-width:64ch;margin-bottom:3rem;}
+.sec-head p{color:var(--muted);font-size:1.05rem;}
 
-body {
-  margin: 0;
-  font-family: var(--sans);
-  color: var(--ink);
-  background: var(--cream);
-  line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
+/* ---- buttons ---- */
+.btn{display:inline-block;padding:.75rem 1.5rem;border-radius:6px;font-weight:500;
+  font-size:.9rem;cursor:pointer;border:1px solid transparent;transition:background .2s,border-color .2s,color .2s;}
+.btn-fill{background:var(--accent);color:#fff;}
+.btn-fill:hover{background:#43604f;}
+.btn-line{border-color:var(--line-strong);color:var(--ink);}
+.btn-line:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---- hero ---- */
+.hero{padding:96px 0 64px;}
+.hero .lead{font-size:clamp(1.05rem,1.8vw,1.25rem);color:var(--muted);max-width:60ch;font-weight:400;}
+.hero .meta{margin-top:1.6rem;font-size:.82rem;color:var(--muted);letter-spacing:.02em;}
+.hero .cta{margin-top:2.2rem;display:flex;gap:.7rem;flex-wrap:wrap;}
+
+/* ---- cards / grids ---- */
+.grid{display:grid;gap:1.2rem;}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+.auto{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.5rem;
+  transition:border-color .2s,transform .2s;}
+.card:hover{border-color:var(--line-strong);}
+.card h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem;}
+.card p{font-size:.88rem;color:var(--muted);margin:0;}
+.card .ico{font-size:1.3rem;opacity:.85;}
+.card .stat{font-size:2rem;font-weight:600;letter-spacing:-.02em;margin:.3rem 0 .2rem;}
+.card .stat small{font-size:.85rem;color:var(--muted);font-weight:400;}
+.card .tag{display:inline-block;margin-top:.8rem;font-size:.68rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);}
+.card.lead-accent{border-left:2px solid var(--accent);}
+.card.lead-neg{border-left:2px solid var(--neg);}
+
+/* ---- charts ---- */
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem;}
+.chart-box h4{font-size:1rem;font-weight:600;}
+.chart{width:100%;min-height:320px;}
+.chart-note{font-size:.82rem;color:var(--muted);margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--line);}
+.chart-note b{color:var(--ink);font-weight:600;}
+.chart-note i{display:block;margin-top:.3rem;font-size:.76rem;opacity:.8;}
+
+/* ---- tables ---- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);}
+table.data{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;}
+table.data th{text-align:left;font-weight:600;font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;
+  color:var(--muted);padding:.9rem 1rem;border-bottom:1px solid var(--line-strong);}
+table.data td{padding:.75rem 1rem;border-bottom:1px solid var(--line);}
+table.data tr:last-child td{border-bottom:0;}
+table.data tr.hl td{background:var(--accent-soft);}
+table.data td.pos{color:var(--pos);font-weight:600;}
+table.data td.neg{color:var(--neg);font-weight:600;}
+.caption{font-size:.8rem;color:var(--muted);margin-top:.8rem;}
+
+/* ---- scenarios ---- */
+.scenario{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.5rem;border-top:2px solid var(--line-strong);}
+.scenario.bull{border-top-color:var(--pos);}
+.scenario.base{border-top-color:var(--accent);}
+.scenario.bear{border-top-color:var(--neg);}
+.scenario .prob{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
+.scenario .rate{font-size:2.4rem;font-weight:600;letter-spacing:-.02em;margin:.2rem 0;}
+.scenario h4{font-size:.98rem;margin:.1rem 0 .6rem;}
+.scenario p{font-size:.84rem;color:var(--muted);margin:0 0 .5rem;}
+.scenario .src{font-size:.74rem;color:var(--muted);opacity:.75;}
+
+/* ---- steps ---- */
+.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem;}
+.step .n{font-size:.78rem;font-weight:600;color:var(--accent);letter-spacing:.1em;}
+.step h4{font-size:.98rem;margin:.5rem 0 .3rem;}
+.step p{font-size:.86rem;color:var(--muted);margin:0;}
+
+/* ---- widget ---- */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.6rem;}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem 1.5rem;margin-bottom:1.4rem;}
+.control label{font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:.45rem;
+  display:flex;justify-content:space-between;}
+.control label .val{color:var(--accent);}
+.control input[type=range]{width:100%;accent-color:var(--accent);}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin:1.2rem 0;}
+.metric{border:1px solid var(--line);border-radius:8px;padding:.85rem 1rem;}
+.metric .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.metric .v{font-size:1.15rem;font-weight:600;margin-top:.2rem;}
+
+/* ---- recommendation ---- */
+.brief{background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);
+  border-radius:10px;padding:2.2rem;}
+.brief .hl{color:var(--accent);font-weight:600;}
+.brief ul{padding-left:1.1rem;margin:1rem 0;}
+.brief li{margin-bottom:.5rem;font-size:.95rem;}
+.brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:1.4rem 0;}
+.brief-grid .item{border:1px solid var(--line);border-radius:8px;padding:1rem;}
+.brief-grid .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+.brief-grid .v{font-weight:600;font-size:1.05rem;margin-top:.2rem;}
+
+/* ---- references ---- */
+.refs{columns:2;column-gap:2.4rem;font-size:.84rem;color:var(--muted);padding-left:1.1rem;}
+.refs li{margin-bottom:.6rem;break-inside:avoid;}
+.refs b{color:var(--ink);font-weight:600;}
+
+/* ---- footer ---- */
+footer{border-top:1px solid var(--line);padding:40px 0;margin-top:40px;}
+footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2rem;}
+footer h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;}
+footer p,footer li{font-size:.84rem;color:var(--muted);}
+footer ul{list-style:none;padding:0;margin:0;}
+footer li{margin-bottom:.3rem;}
+footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--muted);opacity:.8;}
+
+/* ---- responsive ---- */
+@media(max-width:860px){
+  .g4,.g3,.g2{grid-template-columns:1fr;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .controls{grid-template-columns:1fr;}
+  .refs{columns:1;}
+  footer .cols{grid-template-columns:1fr;}
+  .nav-toggle{display:flex;}
+  .nav-links{position:absolute;top:62px;left:0;right:0;flex-direction:column;background:var(--bg);
+    padding:1rem 5vw;gap:1.1rem;display:none;border-bottom:1px solid var(--line);}
+  .nav-links.open{display:flex;}
 }
-
-h1, h2, h3, h4 { font-family: var(--serif); color: var(--navy); line-height: 1.2; margin: 0 0 .5em; }
-h2 { font-size: clamp(1.6rem, 3vw, 2.3rem); }
-h3 { font-size: 1.25rem; }
-p { margin: 0 0 1rem; }
-a { color: var(--navy-soft); }
-
-.wrap { width: min(1140px, 92vw); margin: 0 auto; }
-
-.eyebrow {
-  display: inline-block;
-  font-family: var(--sans);
-  font-size: .72rem;
-  font-weight: 700;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--gold);
-  margin-bottom: .6rem;
-}
-
-/* ---------- Navigation ---------------------------------------------------- */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-  background: rgba(10, 37, 64, .96);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid rgba(201, 169, 97, .25);
-}
-.nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
-.brand { display: flex; align-items: center; gap: .6rem; color: var(--cream); font-family: var(--serif); font-weight: 700; font-size: 1.1rem; text-decoration: none; }
-.brand .mark { width: 26px; height: 26px; flex: 0 0 26px; }
-.nav-links { display: flex; gap: 1.4rem; list-style: none; margin: 0; padding: 0; }
-.nav-links a { color: var(--cream); opacity: .82; text-decoration: none; font-size: .86rem; font-weight: 500; transition: opacity .2s, color .2s; }
-.nav-links a:hover { opacity: 1; color: var(--gold); }
-.nav-toggle { display: none; background: none; border: 0; cursor: pointer; flex-direction: column; gap: 5px; padding: 6px; }
-.nav-toggle span { width: 24px; height: 2px; background: var(--cream); display: block; transition: .25s; }
-
-/* ---------- Hero ---------------------------------------------------------- */
-.hero {
-  padding: 140px 0 70px;
-  background:
-    radial-gradient(1100px 500px at 75% -10%, rgba(201,169,97,.18), transparent 60%),
-    linear-gradient(160deg, #0A2540 0%, #143b5e 100%);
-  color: var(--cream);
-}
-.hero h1 { color: #fff; font-size: clamp(2.1rem, 5vw, 3.6rem); margin-bottom: .3em; }
-.hero .lead { font-size: clamp(1rem, 1.7vw, 1.2rem); max-width: 60ch; opacity: .92; }
-.hero .meta { margin-top: 1.4rem; font-size: .85rem; color: var(--gold-soft); letter-spacing: .04em; }
-.hero .cta { margin-top: 2rem; display: flex; gap: .8rem; flex-wrap: wrap; }
-.btn {
-  display: inline-block; padding: .8rem 1.5rem; border-radius: 8px;
-  font-weight: 600; font-size: .9rem; text-decoration: none; cursor: pointer; border: 1px solid transparent;
-  transition: transform .15s, box-shadow .2s, background .2s;
-}
-.btn-gold { background: var(--gold); color: var(--navy); }
-.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(201,169,97,.35); }
-.btn-ghost { border-color: rgba(247,244,238,.4); color: var(--cream); }
-.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
-
-/* theme cards in hero */
-.theme-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 3rem; }
-.theme-card {
-  background: rgba(255,255,255,.06); border: 1px solid rgba(201,169,97,.25);
-  border-radius: 12px; padding: 1.3rem; transition: transform .2s, background .2s;
-}
-.theme-card:hover { transform: translateY(-4px); background: rgba(255,255,255,.1); }
-.theme-card .ico { font-size: 1.5rem; }
-.theme-card h4 { color: var(--gold); font-family: var(--sans); font-weight: 700; font-size: .95rem; margin: .6rem 0 .3rem; }
-.theme-card p { font-size: .82rem; opacity: .82; margin: 0; }
-
-/* ---------- Sections ------------------------------------------------------ */
-section { padding: 72px 0; }
-section:nth-of-type(even) { background: var(--cream-deep); }
-.section-head { max-width: 70ch; margin-bottom: 2.5rem; }
-.section-head p.intro { color: var(--muted); font-size: 1.02rem; }
-
-/* card grids */
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.3rem; }
-.card {
-  background: #fff; border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow);
-  border-top: 3px solid var(--gold); transition: transform .2s, box-shadow .2s;
-}
-.card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-.card h3 { font-family: var(--sans); font-weight: 700; font-size: 1.05rem; }
-.card .stat { font-family: var(--serif); font-size: 2rem; color: var(--navy); font-weight: 700; }
-.card .stat small { font-size: .9rem; color: var(--muted); font-family: var(--sans); font-weight: 500; }
-.card p { font-size: .9rem; color: var(--ink); margin: .4rem 0 0; }
-.card .tag { display:inline-block; margin-top:.7rem; font-size:.7rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gold); }
-
-/* risk list */
-.risk { background:#fff; border-left:4px solid var(--neg); border-radius:8px; padding:1.1rem 1.3rem; box-shadow:var(--shadow); }
-.risk.amber { border-left-color: var(--gold); }
-.risk h4 { font-family:var(--sans); font-size:.98rem; margin-bottom:.3rem; }
-.risk p { font-size:.88rem; color:var(--muted); margin:0; }
-
-/* ---------- Charts -------------------------------------------------------- */
-.chart-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.6rem; }
-.chart-box { background:#fff; border-radius:12px; padding:1.3rem; box-shadow:var(--shadow); }
-.chart-box h3 { font-family:var(--sans); font-weight:700; font-size:1.02rem; }
-.chart { width:100%; min-height:330px; }
-.chart-note { font-size:.82rem; color:var(--muted); margin-top:.7rem; border-top:1px dashed var(--line); padding-top:.7rem; }
-.chart-note b { color: var(--navy); }
-
-/* ---------- Tables -------------------------------------------------------- */
-.table-scroll { overflow-x:auto; border-radius:12px; box-shadow:var(--shadow); background:#fff; }
-table.data { width:100%; border-collapse:collapse; font-size:.88rem; min-width:520px; }
-table.data th { background:var(--navy); color:var(--cream); padding:.8rem .9rem; text-align:left; font-weight:600; font-size:.82rem; letter-spacing:.02em; }
-table.data td { padding:.7rem .9rem; border-bottom:1px solid var(--line); }
-table.data tr:nth-child(even) td { background:#FAF8F2; }
-table.data td.pos { color:var(--pos); font-weight:700; }
-table.data td.neg { color:var(--neg); font-weight:700; }
-table.data caption { caption-side:bottom; font-size:.78rem; color:var(--muted); font-style:italic; padding:.8rem; text-align:left; }
-.assumption { background:#fff8e6; }
-
-/* ---------- Hedging widget ----------------------------------------------- */
-.widget { background:#fff; border-radius:14px; padding:1.6rem; box-shadow:var(--shadow-lg); }
-.controls { display:grid; grid-template-columns:repeat(2,1fr); gap:1.1rem 1.4rem; margin-bottom:1.4rem; }
-.control { display:flex; flex-direction:column; }
-.control label { font-size:.78rem; font-weight:700; color:var(--navy); margin-bottom:.4rem; display:flex; justify-content:space-between; }
-.control label .val { color:var(--gold); }
-.control input[type=range] { width:100%; accent-color:var(--navy); }
-.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.2rem 0; }
-.metric { background:var(--cream); border-left:3px solid var(--gold); border-radius:8px; padding:.8rem .9rem; }
-.metric .label { font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; color:var(--navy); opacity:.7; }
-.metric .value { font-size:1.15rem; font-weight:700; color:var(--navy); margin-top:.2rem; }
-
-/* scenario chips */
-.scenarios { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; }
-.scenario { border-radius:12px; padding:1.3rem; color:#fff; box-shadow:var(--shadow); }
-.scenario.bull { background:linear-gradient(150deg,#2f7d52,#3D8B5A); }
-.scenario.base { background:linear-gradient(150deg,#143b5e,#0A2540); }
-.scenario.bear { background:linear-gradient(150deg,#9d3535,#B33A3A); }
-.scenario .rate { font-family:var(--serif); font-size:2.1rem; font-weight:700; }
-.scenario h4 { color:#fff; font-family:var(--sans); margin:.2rem 0 .5rem; }
-.scenario p { font-size:.83rem; opacity:.92; margin:0 0 .4rem; }
-.scenario .prob { font-size:.72rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; opacity:.85; }
-
-/* recommendation block */
-.brief { background:linear-gradient(160deg,#0A2540,#143b5e); color:var(--cream); border-radius:16px; padding:2.2rem; box-shadow:var(--shadow-lg); }
-.brief h3 { color:#fff; }
-.brief ul { padding-left:1.1rem; }
-.brief li { margin-bottom:.5rem; font-size:.95rem; }
-.brief .highlight { color:var(--gold); font-weight:700; }
-.brief-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin:1.4rem 0; }
-.brief-grid .item { background:rgba(255,255,255,.07); border-radius:10px; padding:1rem; }
-.brief-grid .item .k { font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; color:var(--gold-soft); }
-.brief-grid .item .v { font-weight:700; font-size:1.05rem; margin-top:.2rem; }
-
-/* mechanics steps */
-.steps { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; }
-.step { background:#fff; border-radius:12px; padding:1.3rem; box-shadow:var(--shadow); position:relative; }
-.step .n { font-family:var(--serif); font-size:2.2rem; color:var(--gold); font-weight:700; line-height:1; }
-.step h4 { font-family:var(--sans); font-size:.98rem; margin:.5rem 0 .3rem; }
-.step p { font-size:.86rem; color:var(--muted); margin:0; }
-
-/* ---------- References & footer ------------------------------------------ */
-.refs { columns: 2; column-gap: 2.5rem; font-size:.82rem; color:var(--muted); }
-.refs li { margin-bottom:.6rem; break-inside:avoid; }
-.refs a { word-break: break-word; }
-
-footer { background:var(--navy); color:var(--cream); padding:48px 0 32px; }
-footer .grid { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:2rem; }
-footer h4 { color:var(--gold); font-family:var(--sans); font-size:.92rem; }
-footer p, footer li { font-size:.84rem; opacity:.82; }
-footer ul { list-style:none; padding:0; margin:0; }
-footer .authors li { margin-bottom:.3rem; }
-footer .legal { margin-top:2rem; padding-top:1.2rem; border-top:1px solid rgba(247,244,238,.15); font-size:.76rem; opacity:.6; }
-
-/* ---------- Responsive ---------------------------------------------------- */
-@media (max-width: 900px) {
-  .theme-cards { grid-template-columns: repeat(2,1fr); }
-  .chart-grid, .controls, .metrics, .scenarios, .steps { grid-template-columns: 1fr; }
-  .metrics { grid-template-columns: repeat(2,1fr); }
-  footer .grid { grid-template-columns: 1fr; }
-  .refs { columns: 1; }
-  .nav-links {
-    position: absolute; top: 64px; left: 0; right: 0; flex-direction: column;
-    background: var(--navy); padding: 1rem 6vw; gap: 1rem; display: none;
-    border-bottom: 1px solid rgba(201,169,97,.25);
-  }
-  .nav-links.open { display: flex; }
-  .nav-toggle { display: flex; }
-}
-@media (max-width: 560px) {
-  .theme-cards { grid-template-columns: 1fr; }
-  .metrics { grid-template-columns: 1fr; }
-}
-
 </style>
 </head>
 <body>
 
-<!-- ============================ NAV ============================ -->
+<!-- ===================== NAV ===================== -->
 <nav class="nav">
   <div class="wrap">
-    <a class="brand" href="#home">
-      <svg class="mark" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 6v6c0 5 4 8 9 10 5-2 9-5 9-10V6l-9-4z" fill="#C9A961"/><path d="M12 5L6 7.5V12c0 3.4 2.6 5.7 6 7.2 3.4-1.5 6-3.8 6-7.2V7.5L12 5z" fill="#0A2540"/></svg>
-      Shield Consulting
-    </a>
+    <div class="brand" data-target="home"><span class="dot"></span>Shield Consulting</div>
     <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <ul class="nav-links">
-      <li><a href="#summary">Summary</a></li>
-      <li><a href="#economy">Economy</a></li>
-      <li><a href="#charts">Data</a></li>
-      <li><a href="#hedging">Hedging Strategy</a></li>
-      <li><a href="#recommendation">Recommendation</a></li>
-      <li><a href="#references">Sources</a></li>
+      <li><a data-target="home">Home</a></li>
+      <li><a data-target="summary">Summary</a></li>
+      <li><a data-target="economy">Economy</a></li>
+      <li><a data-target="data">Data</a></li>
+      <li><a data-target="hedging">Hedging</a></li>
+      <li><a data-target="recommendation">Recommendation</a></li>
+      <li><a data-target="references">Sources</a></li>
     </ul>
   </div>
 </nav>
 
-<!-- ============================ HERO ============================ -->
-<header class="hero" id="home">
-  <div class="wrap">
+<main>
+
+<!-- ===================== HOME ===================== -->
+<section class="view active" id="home">
+  <div class="wrap hero">
     <span class="eyebrow">International Financial Management · Group 334</span>
-    <h1>Arauco México: Macroeconomic Risk &amp; FX Hedging Strategy</h1>
-    <p class="lead">This project analyzes Arauco México's exposure to macroeconomic conditions and USD/MXN
-      exchange-rate movements, focusing on the company's purchase of imported raw materials such as
-      <strong>urea and methanol</strong>, and proposes a combined derivatives strategy to manage that risk.</p>
-    <div class="meta">Shield Consulting · 6-month horizon · Urea + Methanol · $14.82M USD notional · Spot 17.25 (May 2026)</div>
+    <h1>Arauco México<br>Macroeconomic Risk &amp; FX Hedging</h1>
+    <p class="lead">An analysis of Arauco México's exposure to macroeconomic conditions and USD/MXN movements,
+      focused on its purchase of imported raw materials — <strong>urea and methanol</strong> — and a combined
+      derivatives strategy to manage that risk.</p>
+    <div class="meta">6-month horizon · Urea + Methanol · $14.82M USD notional · Spot 17.25 (May 2026)</div>
     <div class="cta">
-      <a class="btn btn-gold" href="#hedging">View the hedging strategy</a>
-      <a class="btn btn-ghost" href="#charts">Explore the data</a>
-    </div>
-
-    <div class="theme-cards">
-      <div class="theme-card"><div class="ico">🌎</div><h4>Macroeconomic environment</h4><p>Weak GDP, sticky inflation, and a fragile super-peso going into the USMCA review.</p></div>
-      <div class="theme-card"><div class="ico">💱</div><h4>FX exposure</h4><p>Net USD payable: a weaker peso raises the MXN cost of dollar-priced inputs.</p></div>
-      <div class="theme-card"><div class="ico">🏭</div><h4>Raw material purchases</h4><p>3,000 t/mo urea + 1,000 t/mo methanol for the Masnova resin & formalin plant.</p></div>
-      <div class="theme-card"><div class="ico">🛡️</div><h4>Hedging strategy</h4><p>A low-cost collar combining a long USD call and a short USD put.</p></div>
+      <span class="btn btn-fill" data-target="hedging">View the hedging strategy</span>
+      <span class="btn btn-line" data-target="data">Explore the data</span>
     </div>
   </div>
-</header>
+  <div class="wrap sec" style="padding-top:0">
+    <div class="grid g4">
+      <div class="card"><div class="ico">◷</div><h4>Macroeconomic environment</h4><p>Weak GDP, sticky inflation and a fragile super-peso going into the USMCA review.</p></div>
+      <div class="card"><div class="ico">⇄</div><h4>FX exposure</h4><p>Net USD payable: a weaker peso raises the MXN cost of dollar-priced inputs.</p></div>
+      <div class="card"><div class="ico">◰</div><h4>Raw material purchases</h4><p>3,000 t/mo urea + 1,000 t/mo methanol for the Masnova resin &amp; formalin plant.</p></div>
+      <div class="card"><div class="ico">◇</div><h4>Hedging strategy</h4><p>A low-cost collar combining a long USD call and a short USD put.</p></div>
+    </div>
+  </div>
+</section>
 
-<!-- ===================== EXECUTIVE SUMMARY (D2) ===================== -->
-<section id="summary">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Deliverable 2 · Executive Summary</span>
+<!-- ===================== SUMMARY ===================== -->
+<section class="view" id="summary">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="eyebrow">Executive Summary</span>
       <h2>The macroeconomic picture in mid-2026</h2>
-      <p class="intro">Arauco México operates inside a <b>structurally weakening economy</b> (Q1 2026 GDP −0.8% QoQ,
-        S&amp;P outlook cut to negative) yet faces a <b>structurally strong peso</b> (USD/MXN ≈ 17.25) driven by a
-        ~287 bps interest-rate differential. Overlaying both is the binary risk of the USMCA review beginning
-        <b>July 1, 2026</b>.</p>
+      <p>Arauco México operates inside a <b>structurally weakening economy</b> (Q1 2026 GDP −0.8% QoQ, S&amp;P outlook
+        cut to negative) yet faces a <b>structurally strong peso</b> (USD/MXN ≈ 17.25) driven by a ~287 bps interest-rate
+        differential. Overlaying both is the binary risk of the USMCA review beginning <b>July 1, 2026</b>.</p>
     </div>
-
-    <div class="cards">
-      <div class="card"><h3>GDP contraction</h3><div class="stat">−0.8%<small> QoQ Q1'26</small></div><p>Worst Q1 since 2020; all three sectors fell. Fixed investment has declined for 17 straight months.</p><span class="tag">Demand risk</span></div>
-      <div class="card"><h3>Rate differential</h3><div class="stat">+287<small> bps</small></div><p>Banxico 6.50% vs Fed 3.625%. The carry trade is the main force holding the peso up — and the main thing that can unwind.</p><span class="tag">FX driver</span></div>
-      <div class="card"><h3>Inflation gap</h3><div class="stat">+0.65<small> pp</small></div><p>Mexico 4.45% vs US 3.8% (April). Narrow today, but expected to widen toward +1.0–1.3 pp by year-end.</p><span class="tag">PPP pressure</span></div>
-      <div class="card"><h3>USD/MXN spot</h3><div class="stat">17.25</div><p>Near multi-year lows. Consensus forecasts cluster at 18.0–19.2 for end-2026 — a depreciation bias.</p><span class="tag">Exposure base</span></div>
+    <div class="grid g4">
+      <div class="card"><h4>GDP contraction</h4><div class="stat">−0.8%<small> QoQ Q1'26</small></div><p>Worst Q1 since 2020; all three sectors fell. Fixed investment down for 17 straight months.</p><span class="tag">Demand risk</span></div>
+      <div class="card"><h4>Rate differential</h4><div class="stat">+287<small> bps</small></div><p>Banxico 6.50% vs Fed 3.625%. The carry trade holds the peso up — and can unwind.</p><span class="tag">FX driver</span></div>
+      <div class="card"><h4>Inflation gap</h4><div class="stat">+0.65<small> pp</small></div><p>Mexico 4.45% vs US 3.8% (Apr). Expected to widen toward +1.0–1.3 pp by year-end.</p><span class="tag">PPP pressure</span></div>
+      <div class="card"><h4>USD/MXN spot</h4><div class="stat">17.25</div><p>Near multi-year lows. Consensus clusters at 18.0–19.2 for end-2026 — a depreciation bias.</p><span class="tag">Exposure base</span></div>
     </div>
-
-    <h3 style="margin-top:2.6rem">Main risks for Arauco México</h3>
-    <div class="cards">
-      <div class="risk amber"><h4>USMCA review (the dominant event risk)</h4><p>Formal review begins July 1, 2026. A failed review could depreciate the peso 5–15%. Calls for asymmetric, option-based protection.</p></div>
-      <div class="risk"><h4>Carry-trade unwind</h4><p>A BoJ hike, Fed pause, or trade shock could trigger a sharp, asymmetric USD/MXN spike — exactly the tail the hedge must cover.</p></div>
-      <div class="risk"><h4>Sticky inflation + weak growth</h4><p>A stagflationary undertone is structurally bearish for the peso medium-term, even while the carry trade masks it short-term.</p></div>
-      <div class="risk amber"><h4>Shifting exposure profile</h4><p>The Alacrán Project (US$40M Durango expansion) raises USD revenue exposure, eroding the old natural hedge and making active hedging more important.</p></div>
+    <h3 style="margin-top:3rem">Main risks for Arauco México</h3>
+    <div class="grid g2">
+      <div class="card lead-neg"><h4>USMCA review — the dominant event risk</h4><p>Formal review begins July 1, 2026. A failed review could depreciate the peso 5–15%, calling for asymmetric, option-based protection.</p></div>
+      <div class="card lead-neg"><h4>Carry-trade unwind</h4><p>A BoJ hike, Fed pause or trade shock could trigger a sharp, asymmetric USD/MXN spike — the tail the hedge must cover.</p></div>
+      <div class="card lead-accent"><h4>Sticky inflation + weak growth</h4><p>A stagflationary undertone is structurally bearish for the peso medium-term, even while the carry trade masks it.</p></div>
+      <div class="card lead-accent"><h4>Shifting exposure profile</h4><p>The Alacrán Project raises USD revenue exposure, eroding the old natural hedge and making active hedging more important.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ECONOMIC ANALYSIS (D2) ===================== -->
-<section id="economy">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Deliverable 2 · Economic Analysis</span>
+<!-- ===================== ECONOMY ===================== -->
+<section class="view" id="economy">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="eyebrow">Economic Analysis</span>
       <h2>How the macro variables affect Arauco</h2>
-      <p class="intro">Five indicators shape the FX outlook. Each is summarized below with its recent trend and the
-        concrete business impact for Arauco México.</p>
+      <p>Five indicators shape the FX outlook. Each is summarized with its recent trend and the concrete business
+        impact for Arauco México.</p>
     </div>
-
-    <div class="cards">
-      <div class="card">
-        <h3>Inflation differential</h3>
-        <p><b>Measures:</b> Mexico CPI vs US CPI — a PPP anchor for the peso.<br>
-        <b>Trend:</b> Mexico eased to 4.45% (Apr); US accelerated to 3.8% on energy. Gap ≈ +0.65 pp.<br>
-        <b>Impact:</b> Mexican services inflation keeps local costs rising faster than USD inputs and erodes the natural-hedge value of MXN costs.</p>
-      </div>
-      <div class="card">
-        <h3>Interest rate differential</h3>
-        <p><b>Measures:</b> Banxico vs Fed — the carry-trade engine.<br>
-        <b>Trend:</b> Banxico 6.50% (easing cycle signalled over); Fed 3.50–3.75%. Differential ≈ +287 bps.<br>
-        <b>Impact:</b> The wide gap props the peso up but is fragile; any unwind is a direct upside risk to Arauco's MXN cost of dollars.</p>
-      </div>
-      <div class="card">
-        <h3>GDP growth</h3>
-        <p><b>Measures:</b> Relative growth — a structural capital-flow driver.<br>
-        <b>Trend:</b> Mexico −0.8% QoQ in Q1'26 vs US +2.0% annualized.<br>
-        <b>Impact:</b> Weak domestic demand hits Mexican panel sales (~60% of revenue); stronger US growth supports the Alacrán export thesis.</p>
-      </div>
-      <div class="card">
-        <h3>Construction sector</h3>
-        <p><b>Measures:</b> The most direct demand gauge for wood panels.<br>
-        <b>Trend:</b> −0.8% YoY (Feb) but five months of monthly gains; +2.5% forecast for 2026.<br>
-        <b>Impact:</b> Contraction compresses MDF/PB/melamine demand; cheaper imported panels gain share when activity is weak.</p>
-      </div>
-      <div class="card">
-        <h3>Trade balance &amp; remittances</h3>
-        <p><b>Measures:</b> The two largest USD inflows (~US$700B/yr) that support the peso.<br>
-        <b>Trend:</b> Trade surplus +US$5.9B (Mar); remittances record Q1 but −18.7% in real MXN terms.<br>
-        <b>Impact:</b> A USMCA shock or migration policy would remove peso support and push USD/MXN higher.</p>
-      </div>
-      <div class="card">
-        <h3>USMCA review &amp; energy</h3>
-        <p><b>Measures:</b> Structural / event risk.<br>
-        <b>Trend:</b> Review opens July 1, 2026; Strait of Hormuz disruption is lifting energy and urea prices.<br>
-        <b>Impact:</b> Binary peso risk plus a direct cost shock to urea — the core reason the hedge focuses on tail protection.</p>
-      </div>
+    <div class="grid auto">
+      <div class="card"><h4>Inflation differential</h4><p><b>Measures:</b> Mexico vs US CPI — a PPP anchor.<br><b>Trend:</b> Mexico eased to 4.45% (Apr); US rose to 3.8%. Gap ≈ +0.65 pp.<br><b>Impact:</b> Local costs rise faster than USD inputs, eroding the natural hedge.</p></div>
+      <div class="card"><h4>Interest rate differential</h4><p><b>Measures:</b> Banxico vs Fed — the carry-trade engine.<br><b>Trend:</b> Banxico 6.50% (easing over); Fed 3.50–3.75%. ≈ +287 bps.<br><b>Impact:</b> Props the peso up but is fragile; any unwind raises Arauco's cost of dollars.</p></div>
+      <div class="card"><h4>GDP growth</h4><p><b>Measures:</b> Relative growth — a capital-flow driver.<br><b>Trend:</b> Mexico −0.8% QoQ vs US +2.0% annualized.<br><b>Impact:</b> Weak demand hits panel sales (~60% of revenue); US strength supports the Alacrán thesis.</p></div>
+      <div class="card"><h4>Construction sector</h4><p><b>Measures:</b> The most direct wood-panel demand gauge.<br><b>Trend:</b> −0.8% YoY (Feb) but five months of gains; +2.5% forecast 2026.<br><b>Impact:</b> Contraction compresses MDF/PB/melamine demand.</p></div>
+      <div class="card"><h4>Trade balance &amp; remittances</h4><p><b>Measures:</b> The two largest USD inflows (~$700B/yr).<br><b>Trend:</b> Surplus +$5.9B (Mar); remittances record but −18.7% in real MXN.<br><b>Impact:</b> A USMCA shock would remove peso support, pushing USD/MXN higher.</p></div>
+      <div class="card"><h4>USMCA review &amp; energy</h4><p><b>Measures:</b> Structural / event risk.<br><b>Trend:</b> Review opens July 1; Strait-of-Hormuz disruption lifts energy and urea prices.<br><b>Impact:</b> Binary peso risk plus a direct cost shock to urea.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== DATA VISUALIZATION (D2) ===================== -->
-<section id="charts">
-  <div class="wrap">
-    <div class="section-head">
+<!-- ===================== DATA ===================== -->
+<section class="view" id="data">
+  <div class="wrap sec">
+    <div class="sec-head">
       <span class="eyebrow">Data Visualization</span>
       <h2>The numbers behind the analysis</h2>
-      <p class="intro">Interactive charts for the key macro variables. All values trace to Deliverable 2 (INEGI, BLS,
-        Banxico, Fed) and the USD/MXN forecast set in Deliverable 4. Forecast bars use the midpoint of each
-        published range; hover any bar for the exact value.</p>
+      <p>Interactive charts for the key macro variables. Forecast bars use the midpoint of each published range;
+        hover any bar for the exact value.</p>
     </div>
-
-    <div class="chart-grid">
+    <div class="grid g2">
       <div class="chart-box">
-        <h3>Inflation: Mexico vs United States</h3>
+        <h4>Inflation: Mexico vs United States</h4>
         <div id="chart-inflation" class="chart"></div>
-        <p class="chart-note"><b>Reading:</b> Both economies sit above target. The gap is narrow today (+0.65 pp) but
-          is expected to widen by year-end, modestly increasing structural peso-depreciation pressure.
-          <br><i>Source: INEGI &amp; BLS, April 2026; Banxico / Fed SEP forecasts.</i></p>
+        <p class="chart-note"><b>Reading:</b> Both economies sit above target. The +0.65 pp gap is narrow today but is
+          expected to widen, modestly increasing peso-depreciation pressure.
+          <i>Source: INEGI &amp; BLS, April 2026; Banxico / Fed forecasts.</i></p>
       </div>
       <div class="chart-box">
-        <h3>Policy rates: Banxico vs Federal Reserve</h3>
+        <h4>Policy rates: Banxico vs Federal Reserve</h4>
         <div id="chart-rates" class="chart"></div>
-        <p class="chart-note"><b>Reading:</b> The ~287 bps differential is the single most important USD/MXN driver,
-          feeding the carry trade. Gradual convergence is the key FX risk for late 2026.
-          <br><i>Source: Banxico (May 7, 2026); FOMC (Apr 29, 2026); dot plot / futures.</i></p>
+        <p class="chart-note"><b>Reading:</b> The ~287 bps differential is the single most important USD/MXN driver.
+          Gradual convergence is the key FX risk for late 2026.
+          <i>Source: Banxico (May 7, 2026); FOMC (Apr 29, 2026).</i></p>
       </div>
       <div class="chart-box">
-        <h3>GDP growth: Mexico vs United States</h3>
+        <h4>GDP growth: Mexico vs United States</h4>
         <div id="chart-gdp" class="chart"></div>
-        <p class="chart-note"><b>Reading:</b> A widening US–Mexico growth gap signals weaker fundamentals for the peso
-          and reinforces the strategic logic of exporting north under the Alacrán Project.
-          <br><i>Source: INEGI &amp; BEA Q1 2026; IMF / consensus forecasts.</i></p>
+        <p class="chart-note"><b>Reading:</b> A widening US–Mexico growth gap signals weaker peso fundamentals and
+          reinforces the logic of exporting north under the Alacrán Project.
+          <i>Source: INEGI &amp; BEA Q1 2026; consensus forecasts.</i></p>
       </div>
       <div class="chart-box">
-        <h3>USD/MXN end-2026 forecasts by source</h3>
+        <h4>USD/MXN end-2026 forecasts by source</h4>
         <div id="chart-fx" class="chart"></div>
         <p class="chart-note"><b>Reading:</b> Independent forecasts cluster between 18.0 and 19.2 — a clear depreciation
           bias versus the 17.25 spot. The dotted line marks today's spot.
-          <br><i>Source: Banxico Encuesta, Citi, BBVA, Banorte/Hacienda, Vanguard/Banco Base (Deliverable 4).</i></p>
+          <i>Source: Banxico Encuesta, Citi, BBVA, Banorte/Hacienda, Vanguard/Banco Base.</i></p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===================== HEDGING STRATEGY (D4) ===================== -->
-<section id="hedging">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Deliverable 4 · FX Hedging Strategy</span>
+<!-- ===================== HEDGING ===================== -->
+<section class="view" id="hedging">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="eyebrow">FX Hedging Strategy</span>
       <h2>A combined derivatives approach</h2>
-      <p class="intro">Shield Consulting recommends a <b>low-cost collar</b> — a long USD call (cap 18.00) funded by a
-        short USD put (floor 16.85) — to hedge Arauco's six-month urea and methanol exposure. Net cost:
-        <b>MXN 1.16M (0.45% of notional)</b>; maximum protection in a bearish-peso crisis: <b>MXN 29.6M</b>.</p>
+      <p>We recommend a <b>low-cost collar</b> — a long USD call (cap 18.00) funded by a short USD put (floor 16.85) —
+        to hedge Arauco's six-month urea and methanol exposure. Net cost: <b>MXN 1.16M (0.45% of notional)</b>;
+        maximum protection in a bearish-peso crisis: <b>MXN 29.6M</b>.</p>
     </div>
 
-    <!-- 5.1 Exposure -->
-    <h3>5.1 · Context &amp; FX exposure</h3>
-    <p>Arauco México buys urea and methanol — both priced in USD on global markets — as inputs to resin and
-      formalin production at the Masnova plant, while its revenue is predominantly MXN. This is a textbook
-      <b>net USD payable exposure</b>: <b>when the peso weakens, the MXN cost of the same USD purchase rises</b>,
-      compressing margins.</p>
+    <h3>Context &amp; FX exposure</h3>
+    <p class="muted">Arauco buys urea and methanol — both priced in USD — as inputs to resin and formalin production,
+      while its revenue is predominantly MXN. This is a net USD payable exposure: <b>when the peso weakens, the MXN
+      cost of the same purchase rises</b>.</p>
     <div class="table-scroll">
       <table class="data">
-        <thead><tr><th>Raw material</th><th>Volume / month</th><th>Price / ton (May 2026)</th><th>Monthly USD</th><th>Source</th></tr></thead>
+        <thead><tr><th>Raw material</th><th>Volume / month</th><th>Price / ton</th><th>Monthly USD</th><th>Source</th></tr></thead>
         <tbody>
-          <tr><td>Urea (granular)</td><td>3,000 tons</td><td>$700</td><td>$2,100,000</td><td>Trading Economics benchmark</td></tr>
-          <tr><td>Methanol</td><td>1,000 tons</td><td>$370</td><td>$370,000</td><td>Methanex Q1 2026 + freight</td></tr>
+          <tr><td>Urea (granular)</td><td>3,000 tons</td><td>$700</td><td>$2,100,000</td><td>Trading Economics</td></tr>
+          <tr><td>Methanol</td><td>1,000 tons</td><td>$370</td><td>$370,000</td><td>Methanex Q1 2026</td></tr>
           <tr><td><b>Total monthly</b></td><td>—</td><td>—</td><td><b>$2,470,000</b></td><td>—</td></tr>
           <tr><td><b>6-month exposure</b></td><td>—</td><td>—</td><td><b>$14,820,000</b></td><td>—</td></tr>
           <tr><td>6-month MXN equivalent @ 17.25</td><td>—</td><td>—</td><td><b>MXN 255.6M</b></td><td>Banxico FIX</td></tr>
         </tbody>
-        <caption>Urea prices rose sharply in 2026 (+81% YoY) on Strait-of-Hormuz disruption, nearly doubling the USD exposure versus early-2026 and strengthening the case for hedging.</caption>
       </table>
     </div>
+    <p class="caption">Urea prices rose ~81% YoY in 2026 on Strait-of-Hormuz disruption, nearly doubling the USD exposure and strengthening the case for hedging.</p>
 
-    <!-- 5.2 FX expectation -->
-    <h3 style="margin-top:2.6rem">5.2 · FX rate expectation — three scenarios</h3>
-    <p>We compiled forecasts from six independent sources (charted above) and collapsed them into three scenarios
-      used throughout the valuation. Approximate probability weights: 25 / 50 / 25.</p>
-    <div class="scenarios">
-      <div class="scenario bull">
-        <span class="prob">~25% probability</span>
-        <div class="rate">17.00</div>
-        <h4>Bullish Peso</h4>
-        <p>Carry trade persists, clean USMCA renewal, peso strength continues.</p>
-        <p><b>For Arauco:</b> cheapest unhedged outcome; collar gives up some upside below the floor.</p>
-        <p style="opacity:.7;font-size:.75rem">Source: Vanguard low end, carry trade</p>
-      </div>
-      <div class="scenario base">
-        <span class="prob">~50% probability</span>
-        <div class="rate">18.10</div>
-        <h4>Base case</h4>
-        <p>Gradual depreciation, consistent with the 6-month forward and analyst consensus.</p>
-        <p><b>For Arauco:</b> operates in the collar's no-action zone — only the small premium cost.</p>
-        <p style="opacity:.7;font-size:.75rem">Source: Citi + BBVA + forward convergence</p>
-      </div>
-      <div class="scenario bear">
-        <span class="prob">~25% probability</span>
-        <div class="rate">19.50</div>
-        <h4>Bearish Peso</h4>
-        <p>USMCA breakdown, carry-trade unwind, depreciation to Banxico-consensus level.</p>
-        <p><b>For Arauco:</b> the collar's cap delivers maximum protection — up to MXN 29.6M saved.</p>
-        <p style="opacity:.7;font-size:.75rem">Source: Banxico Encuesta, Hacienda upper range</p>
-      </div>
+    <h3 style="margin-top:3rem">FX rate expectation — three scenarios</h3>
+    <p class="muted">Forecasts from six independent sources collapse into three scenarios. Approximate probability weights: 25 / 50 / 25.</p>
+    <div class="grid g3">
+      <div class="scenario bull"><span class="prob">~25% probability</span><div class="rate">17.00</div><h4>Bullish Peso</h4><p>Carry trade persists, clean USMCA renewal, peso strength continues.</p><p><b>For Arauco:</b> cheapest unhedged outcome; collar gives up upside below the floor.</p><span class="src">Vanguard low end, carry trade</span></div>
+      <div class="scenario base"><span class="prob">~50% probability</span><div class="rate">18.10</div><h4>Base case</h4><p>Gradual depreciation, consistent with the forward and analyst consensus.</p><p><b>For Arauco:</b> sits in the collar's no-action zone — only the small premium cost.</p><span class="src">Citi + BBVA + forward</span></div>
+      <div class="scenario bear"><span class="prob">~25% probability</span><div class="rate">19.50</div><h4>Bearish Peso</h4><p>USMCA breakdown, carry-trade unwind, depreciation to consensus level.</p><p><b>For Arauco:</b> the cap delivers maximum protection — up to MXN 29.6M saved.</p><span class="src">Banxico Encuesta, Hacienda</span></div>
     </div>
 
-    <!-- 5.3 Horizon -->
-    <h3 style="margin-top:2.6rem">5.3 · Hedging horizon — 6 months</h3>
-    <div class="cards">
-      <div class="card"><h3>Procurement cycle</h3><p>Aligns with Arauco's semi-annual industrial procurement planning for raw materials.</p></div>
-      <div class="card"><h3>Event coverage</h3><p>Covers the entire USMCA review negotiation window from July 1, 2026 onward — the dominant binary risk.</p></div>
-      <div class="card"><h3>Market liquidity</h3><p>The 6-month tenor gives access to deeper, more liquid USD/MXN option markets than shorter dates.</p></div>
+    <h3 style="margin-top:3rem">Hedging horizon — 6 months</h3>
+    <div class="grid g3">
+      <div class="card"><h4>Procurement cycle</h4><p>Aligns with Arauco's semi-annual industrial procurement planning.</p></div>
+      <div class="card"><h4>Event coverage</h4><p>Covers the entire USMCA review window from July 1, 2026 onward.</p></div>
+      <div class="card"><h4>Market liquidity</h4><p>The 6-month tenor accesses deeper, more liquid USD/MXN option markets.</p></div>
     </div>
 
-    <!-- 5.4 Strategy mechanics -->
-    <h3 style="margin-top:2.6rem">5.4 · Strategy design — the collar</h3>
-    <p>A single forward at 17.52 would lock the rate but forfeit all upside; a naked call protects but drains cash.
-      The <b>collar combines both legs</b> into one structure with bounded risk in both directions.</p>
-    <div class="steps">
-      <div class="step"><div class="n">1</div><h4>Buy a USD call @ 18.00</h4><p>The protection leg — the right to buy USD at 18.00 if spot rises above it.</p></div>
-      <div class="step"><div class="n">2</div><h4>Sell a USD put @ 16.85</h4><p>The funding leg — obligation to buy USD at 16.85 if spot falls below it; its premium funds most of the call.</p></div>
-      <div class="step"><div class="n">3</div><h4>Net payoff</h4><p>Protected above 18.00, participating between 16.85–18.00, giving up gains below 16.85 to fund protection.</p></div>
+    <h3 style="margin-top:3rem">Strategy design — the collar</h3>
+    <p class="muted">A single forward would lock the rate but forfeit all upside; a naked call protects but drains cash.
+      The collar combines both legs into one structure with bounded risk in both directions.</p>
+    <div class="grid g3">
+      <div class="step"><div class="n">STEP 1</div><h4>Buy a USD call @ 18.00</h4><p>The protection leg — the right to buy USD at 18.00 if spot rises above it.</p></div>
+      <div class="step"><div class="n">STEP 2</div><h4>Sell a USD put @ 16.85</h4><p>The funding leg — its premium funds most of the call.</p></div>
+      <div class="step"><div class="n">STEP 3</div><h4>Net payoff</h4><p>Protected above 18.00, participating 16.85–18.00, giving up gains below 16.85.</p></div>
     </div>
 
-    <h4 style="margin-top:2rem">Strike selection — five candidates evaluated</h4>
+    <h4 style="margin-top:2.4rem">Strike selection — five candidates evaluated</h4>
     <div class="table-scroll">
       <table class="data">
-        <thead><tr><th>Strategy</th><th>Cap (Call K)</th><th>Floor (Put K)</th><th>Width</th><th>Net cost (MXN)</th><th>Verdict</th></tr></thead>
+        <thead><tr><th>Strategy</th><th>Cap</th><th>Floor</th><th>Width</th><th>Net cost (MXN)</th><th>Verdict</th></tr></thead>
         <tbody>
           <tr><td>A — Tight</td><td>17.75</td><td>17.00</td><td>0.75</td><td>+1,783,245</td><td>Overpaying for protection</td></tr>
-          <tr style="background:#fff7e0"><td><b>B — Balanced (Selected)</b></td><td><b>18.00</b></td><td><b>16.85</b></td><td><b>1.15</b></td><td><b>+1,160,513</b></td><td><b>Best balance</b></td></tr>
+          <tr class="hl"><td><b>B — Balanced (Selected)</b></td><td><b>18.00</b></td><td><b>16.85</b></td><td><b>1.15</b></td><td><b>+1,160,513</b></td><td><b>Best balance</b></td></tr>
           <tr><td>C — True zero-cost</td><td>18.10</td><td>17.00</td><td>1.10</td><td>−107,219</td><td>Higher floor unattractive</td></tr>
           <tr><td>D — Wide</td><td>18.50</td><td>16.50</td><td>2.00</td><td>+495,097</td><td>Sacrifices protection</td></tr>
           <tr><td>E — Asymmetric</td><td>18.25</td><td>16.50</td><td>1.75</td><td>+1,470,432</td><td>Doesn't dominate</td></tr>
         </tbody>
-        <caption>Garman-Kohlhagen pricing, vol 12%, T = 0.5y, S = 17.25, r_d = 6.6%, r_f = 3.55%. Strategy B chosen for the best balance of protection breadth, cost, and alignment with the forecast scenarios.</caption>
       </table>
     </div>
+    <p class="caption">Strategy B was chosen for the best balance of protection breadth, cost, and alignment with the forecast scenarios.</p>
 
-    <!-- 5.5 Strategy analysis -->
-    <h3 style="margin-top:2.6rem">5.5 · Strategy analysis</h3>
-    <div class="cards">
-      <div class="risk"><h4>When it helps</h4><p>Any move above the 18.00 cap — especially a USMCA-driven spike. At 20.00, the collar saves MXN 29.6M.</p></div>
-      <div class="risk amber"><h4>When it costs</h4><p>Below the 16.85 floor, Arauco forgoes better spot. At 15.50 the opportunity cost is MXN 20M — but this is also the cheapest unhedged outcome.</p></div>
-      <div class="risk"><h4>Residual risks</h4><p>Counterparty (ISDA), volume basis (>20% deviation needs re-sizing), and mid-life mark-to-market vol. At-maturity outcomes are deterministic.</p></div>
-      <div class="risk amber"><h4>Why still preferable</h4><p>For 0.45% of notional, Arauco converts an unbounded tail risk into a bounded, planned cost — appropriate given the binary USMCA event.</p></div>
+    <h3 style="margin-top:3rem">Strategy analysis</h3>
+    <div class="grid g2">
+      <div class="card lead-accent"><h4>When it helps</h4><p>Any move above the 18.00 cap — especially a USMCA-driven spike. At 20.00, the collar saves MXN 29.6M.</p></div>
+      <div class="card lead-neg"><h4>When it costs</h4><p>Below the 16.85 floor, Arauco forgoes better spot. At 15.50 the opportunity cost is MXN 20M — but this is also the cheapest unhedged outcome.</p></div>
+      <div class="card lead-neg"><h4>Residual risks</h4><p>Counterparty (ISDA), volume basis (&gt;20% deviation needs re-sizing), and mid-life mark-to-market.</p></div>
+      <div class="card lead-accent"><h4>Why still preferable</h4><p>For 0.45% of notional, Arauco converts an unbounded tail risk into a bounded, planned cost.</p></div>
     </div>
 
-    <!-- 5.6 Valuation -->
-    <h3 style="margin-top:2.6rem">5.6 · Valuation — inputs &amp; sensitivity</h3>
-    <div class="table-scroll">
-      <table class="data">
-        <thead><tr><th>Input</th><th>Value</th><th>Source</th></tr></thead>
-        <tbody>
-          <tr><td>Spot rate (S)</td><td>17.25</td><td>Banxico FIX (SF43718), May 26 2026</td></tr>
-          <tr><td>Domestic rate (r_d, MXN)</td><td>6.60%</td><td>CETES 6m proxy + Banxico 6.50%</td></tr>
-          <tr><td>Foreign rate (r_f, USD)</td><td>3.55%</td><td>Fed midpoint 3.625% + 6m T-bill</td></tr>
-          <tr><td>Time to maturity (T)</td><td>0.5 years</td><td>Strategy horizon</td></tr>
-          <tr><td>Volatility (σ)</td><td>12% (10–14% sensitivity)</td><td>Implied vol, 6m USD/MXN options</td></tr>
-          <tr><td>Call strike (K_c)</td><td>18.00</td><td>Selected (Strategy B)</td></tr>
-          <tr><td>Put strike (K_p)</td><td>16.85</td><td>Selected (Strategy B)</td></tr>
-          <tr><td>6-month forward (computed)</td><td>17.515</td><td>F = S·exp((r_d − r_f)·T)</td></tr>
-          <tr><td>Notional</td><td>$14.82M USD</td><td>Exposure calc (§5.1)</td></tr>
-        </tbody>
-      </table>
+    <h3 style="margin-top:3rem">Valuation — inputs &amp; sensitivity</h3>
+    <div class="grid g2">
+      <div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Input</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Spot rate</td><td>17.25</td><td>Banxico FIX, May 26 2026</td></tr>
+            <tr><td>Domestic rate (MXN)</td><td>6.60%</td><td>CETES 6m + Banxico 6.50%</td></tr>
+            <tr><td>Foreign rate (USD)</td><td>3.55%</td><td>Fed midpoint + 6m T-bill</td></tr>
+            <tr><td>Time to maturity</td><td>0.5 years</td><td>Strategy horizon</td></tr>
+            <tr><td>Volatility</td><td>12% (10–14%)</td><td>Implied vol, 6m options</td></tr>
+            <tr><td>Call strike</td><td>18.00</td><td>Selected (Strategy B)</td></tr>
+            <tr><td>Put strike</td><td>16.85</td><td>Selected (Strategy B)</td></tr>
+            <tr><td>6-month forward</td><td>17.515</td><td>Computed forward</td></tr>
+            <tr><td>Notional</td><td>$14.82M USD</td><td>Exposure calculation</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-scroll">
+        <table class="data">
+          <thead><tr><th>Volatility</th><th>Call premium</th><th>Put premium</th><th>Net / USD</th><th>Total net (MXN)</th></tr></thead>
+          <tbody>
+            <tr><td>10%</td><td>0.2857</td><td>0.2157</td><td>0.0700</td><td>1,037,439</td></tr>
+            <tr class="hl"><td><b>12%</b></td><td><b>0.3767</b></td><td><b>0.2984</b></td><td><b>0.0783</b></td><td><b>1,160,513</b></td></tr>
+            <tr><td>14%</td><td>0.4693</td><td>0.3841</td><td>0.0852</td><td>1,263,246</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="table-scroll" style="margin-top:1.2rem">
-      <table class="data">
-        <thead><tr><th>Volatility</th><th>Call premium (MXN/USD)</th><th>Put premium (MXN/USD)</th><th>Net cost / USD</th><th>Total net (MXN)</th></tr></thead>
-        <tbody>
-          <tr><td>10%</td><td>0.2857</td><td>0.2157</td><td>0.0700</td><td>1,037,439</td></tr>
-          <tr style="background:#fff7e0"><td><b>12% (central)</b></td><td><b>0.3767</b></td><td><b>0.2984</b></td><td><b>0.0783</b></td><td><b>1,160,513</b></td></tr>
-          <tr><td>14%</td><td>0.4693</td><td>0.3841</td><td>0.0852</td><td>1,263,246</td></tr>
-        </tbody>
-        <caption>The strategy's cost is stable across plausible volatility regimes — even at 14% vol the net cost stays under MXN 1.3M (0.50% of notional).</caption>
-      </table>
-    </div>
+    <p class="caption">The strategy's cost is stable across plausible volatility regimes — even at 14% the net cost stays under MXN 1.3M (0.50% of notional).</p>
 
-    <!-- 5.7/5.8 Interactive widget -->
-    <h3 style="margin-top:2.6rem">Interactive collar calculator</h3>
-    <p>Adjust the strikes, volatility or spot and the payoff chart, premiums and P&amp;L table update live via the
-      Garman-Kohlhagen model. Defaults reflect the recommended Strategy B.</p>
+    <h3 style="margin-top:3rem">Interactive collar calculator</h3>
+    <p class="muted">Adjust the strikes, volatility or spot and the payoff chart, premiums and P&amp;L table update live. Defaults reflect the recommended Strategy B.</p>
     <div class="widget">
       <div class="controls">
         <div class="control"><label>Cap (call strike) <span class="val" id="capVal">18.00</span></label><input type="range" id="cap" min="17.50" max="19.00" step="0.05" value="18.00"></div>
@@ -557,38 +432,37 @@ footer .legal { margin-top:2rem; padding-top:1.2rem; border-top:1px solid rgba(2
         <div class="control"><label>Spot USD/MXN <span class="val" id="spotVal">17.25</span></label><input type="range" id="spot" min="16.50" max="18.50" step="0.05" value="17.25"></div>
       </div>
       <div class="metrics">
-        <div class="metric"><div class="label">Call premium /USD</div><div class="value" id="callPrem">—</div></div>
-        <div class="metric"><div class="label">Put premium /USD</div><div class="value" id="putPrem">—</div></div>
-        <div class="metric"><div class="label">Net cost (MXN)</div><div class="value" id="netCost">—</div></div>
-        <div class="metric"><div class="label">Forward 6m</div><div class="value" id="fwd">—</div></div>
+        <div class="metric"><div class="k">Call premium /USD</div><div class="v" id="callPrem">—</div></div>
+        <div class="metric"><div class="k">Put premium /USD</div><div class="v" id="putPrem">—</div></div>
+        <div class="metric"><div class="k">Net cost (MXN)</div><div class="v" id="netCost">—</div></div>
+        <div class="metric"><div class="k">Forward 6m</div><div class="v" id="fwd">—</div></div>
       </div>
-      <div id="payoffChart" class="chart" style="min-height:420px"></div>
+      <div id="payoffChart" class="chart" style="min-height:400px"></div>
     </div>
 
-    <!-- 5.7 P&L table -->
-    <h3 style="margin-top:2.6rem">5.7 · P&amp;L across seven spot rates at maturity</h3>
+    <h3 style="margin-top:3rem">P&amp;L across seven spot rates at maturity</h3>
     <div class="table-scroll">
       <table class="data">
-        <thead><tr><th>Scenario</th><th>USD/MXN at T</th><th>Cost WITHOUT hedge (MXN M)</th><th>Cost WITH collar (MXN M)</th><th>Strategy P&amp;L (MXN M)</th></tr></thead>
-        <tbody id="pnlBody"><!-- populated by script.js --></tbody>
-        <caption>Net of the MXN 1.16M premium. Positive P&amp;L (green) = collar saves money; negative (red) = opportunity cost in a strong-peso scenario.</caption>
+        <thead><tr><th>Scenario</th><th>USD/MXN at T</th><th>Cost without hedge (MXN M)</th><th>Cost with collar (MXN M)</th><th>Strategy P&amp;L (MXN M)</th></tr></thead>
+        <tbody id="pnlBody"></tbody>
       </table>
     </div>
+    <p class="caption">Net of the MXN 1.16M premium. Positive (green) = collar saves money; negative (red) = opportunity cost in a strong-peso scenario.</p>
   </div>
 </section>
 
-<!-- ===================== RECOMMENDATION (D4) ===================== -->
-<section id="recommendation">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="eyebrow">Deliverable 4 · Decision Brief</span>
+<!-- ===================== RECOMMENDATION ===================== -->
+<section class="view" id="recommendation">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="eyebrow">Decision Brief</span>
       <h2>Final executive recommendation</h2>
     </div>
     <div class="brief">
       <h3>For the CFO</h3>
-      <p>Shield Consulting recommends executing a <span class="highlight">6-month USD/MXN collar at 18.00 / 16.85</span>
-        for Arauco México's urea and methanol exposure, with a total notional of <span class="highlight">$14.82M USD</span>.
-        Net upfront cost: <span class="highlight">MXN 1.16M</span>.</p>
+      <p>We recommend executing a <span class="hl">6-month USD/MXN collar at 18.00 / 16.85</span> for Arauco México's
+        urea and methanol exposure, with a total notional of <span class="hl">$14.82M USD</span>. Net upfront cost:
+        <span class="hl">MXN 1.16M</span>.</p>
       <div class="brief-grid">
         <div class="item"><div class="k">Strategy</div><div class="v">Low-cost collar</div></div>
         <div class="item"><div class="k">Hedge ratio</div><div class="v">100% of USD payable</div></div>
@@ -601,296 +475,181 @@ footer .legal { margin-top:2rem; padding-top:1.2rem; border-top:1px solid rgba(2
         <li>Aligns the cap with the USMCA stress level (review begins July 1, 2026).</li>
         <li><b>Next steps:</b> obtain ISDA quotes from BBVA / Banorte / Citi México, confirm volumes with procurement, and execute as a single package.</li>
       </ul>
-      <p style="opacity:.85;font-size:.9rem;margin-top:1rem">This recommendation does not claim to predict the future; it is based on the best available market information and current conditions as of May 2026. <b>What we explicitly chose not to do:</b> lock the 17.52 forward (forfeits upside), buy a naked call (cash drain), or remain unhedged (uncovered tail risk).</p>
+      <p class="muted" style="font-size:.9rem">This recommendation does not claim to predict the future; it is based on the best available market information as of May 2026. We explicitly chose not to lock the forward (forfeits upside), buy a naked call (cash drain), or remain unhedged (uncovered tail risk).</p>
     </div>
   </div>
 </section>
 
 <!-- ===================== REFERENCES ===================== -->
-<section id="references">
-  <div class="wrap">
-    <div class="section-head">
+<section class="view" id="references">
+  <div class="wrap sec">
+    <div class="sec-head">
       <span class="eyebrow">Sources</span>
       <h2>References</h2>
     </div>
     <ol class="refs">
-      <li><b>Banco de México</b> — USD/MXN FIX (SF43718), Monetary Policy Statement (May 7, 2026), Encuesta de Expectativas. <a href="https://www.banxico.org.mx/">banxico.org.mx</a></li>
-      <li><b>INEGI</b> — INPC April 2026; GDP flash estimate Q1 2026; ENEC construction survey. <a href="https://www.inegi.org.mx/">inegi.org.mx</a></li>
-      <li><b>Federal Reserve</b> — FOMC Statement (Apr 29, 2026); SEP (Mar 2026); H.15 rates. <a href="https://www.federalreserve.gov/">federalreserve.gov</a></li>
-      <li><b>U.S. Bureau of Labor Statistics</b> — CPI, April 2026. <a href="https://www.bls.gov/cpi/">bls.gov/cpi</a></li>
-      <li><b>U.S. Bureau of Economic Analysis</b> — GDP Q1 2026 advance estimate. <a href="https://www.bea.gov/">bea.gov</a></li>
-      <li><b>Trading Economics</b> — Urea benchmark, Mexico inflation/rates, USD/MXN. <a href="https://tradingeconomics.com/commodity/urea">tradingeconomics.com</a></li>
-      <li><b>Methanex Corporation</b> — Monthly posted methanol reference prices, Q1 2026. <a href="https://www.methanex.com/">methanex.com</a></li>
-      <li><b>BBVA Research</b> — Mexico Economic Outlook, March 2026. <a href="https://www.bbvaresearch.com/">bbvaresearch.com</a></li>
-      <li><b>Citi Research</b> — Survey of Expectations (May 2026), via El Financiero / Axis Negocios.</li>
-      <li><b>FXStreet</b> — USD/MXN Annual Forecast 2026 (Dec 2025). <a href="https://www.fxstreet.com/">fxstreet.com</a></li>
-      <li><b>SHCP</b> — 2026 Economic Package / Pre-Criterios 2027. <a href="https://www.gob.mx/hacienda">gob.mx/hacienda</a></li>
-      <li><b>IMF</b> — World Economic Outlook (Apr 2026); Mexico Article IV (Oct 2025). <a href="https://www.imf.org/en/Countries/MEX">imf.org</a></li>
+      <li><b>Banco de México</b> — USD/MXN FIX, Monetary Policy Statement (May 7, 2026), Encuesta de Expectativas.</li>
+      <li><b>INEGI</b> — INPC April 2026; GDP flash estimate Q1 2026; ENEC construction survey.</li>
+      <li><b>Federal Reserve</b> — FOMC Statement (Apr 29, 2026); SEP (Mar 2026); H.15 rates.</li>
+      <li><b>U.S. Bureau of Labor Statistics</b> — CPI, April 2026.</li>
+      <li><b>U.S. Bureau of Economic Analysis</b> — GDP Q1 2026 advance estimate.</li>
+      <li><b>Trading Economics</b> — Urea benchmark; Mexico inflation/rates; USD/MXN.</li>
+      <li><b>Methanex Corporation</b> — Monthly posted methanol reference prices, Q1 2026.</li>
+      <li><b>BBVA Research</b> — Mexico Economic Outlook, March 2026.</li>
+      <li><b>Citi Research</b> — Survey of Expectations (May 2026).</li>
+      <li><b>FXStreet</b> — USD/MXN Annual Forecast 2026 (Dec 2025).</li>
+      <li><b>SHCP</b> — 2026 Economic Package / Pre-Criterios 2027.</li>
+      <li><b>IMF</b> — World Economic Outlook (Apr 2026); Mexico Article IV (Oct 2025).</li>
       <li><b>S&amp;P Global Ratings</b> — Mexico sovereign outlook revision (May 13, 2026).</li>
       <li><b>CSIS / WITA / CFR</b> — USMCA Review 2026 analyses.</li>
-      <li><b>GlobalData</b> — Mexico Construction Market Report 2026. <a href="https://www.globaldata.com/">globaldata.com</a></li>
+      <li><b>GlobalData</b> — Mexico Construction Market Report 2026.</li>
     </ol>
   </div>
 </section>
 
 <!-- ===================== FOOTER ===================== -->
 <footer>
-  <div class="wrap">
-    <div class="grid">
-      <div>
-        <h4>Shield Consulting</h4>
-        <p>A student consulting microsite for the International Financial Management course (Group 334),
-           ITESM Guadalajara. Training partner: Arauco Industria de México S.A. de C.V.</p>
-        <p style="margin-top:.6rem"><a style="color:var(--gold)" href="https://afiequipo4.wixsite.com/shieldconsulting">afiequipo4.wixsite.com/shieldconsulting</a></p>
-      </div>
-      <div>
-        <h4>Authors — Equipo 4</h4>
-        <ul class="authors">
-          <li>Gibran Laija Godoy · A01638285</li>
-          <li>Jonathan Díaz Cortés · A01638641</li>
-          <li>Maria Laura Jaidar Nevarez · A01562352</li>
-          <li>Pablo Gilberto De León Quiroga · A01637255</li>
-          <li>Andrea Elisa Coutiño De Los Reyes · A00837665</li>
-        </ul>
-      </div>
-      <div>
-        <h4>Project</h4>
-        <ul>
-          <li>Professor: Adriana García</li>
-          <li>Deliverables 2 → 4 · May–June 2026</li>
-          <li>Macro analysis · FX exposure · Hedging</li>
-        </ul>
-      </div>
+  <div class="wrap cols">
+    <div>
+      <h4>Shield Consulting</h4>
+      <p>A student consulting microsite for the International Financial Management course (Group 334),
+         ITESM Guadalajara. Training partner: Arauco Industria de México S.A. de C.V.</p>
     </div>
-    <p class="legal">For academic purposes only. Not investment advice. All figures are sourced from public market
-      data as of May 2026; forecast figures are midpoints of published ranges and are clearly labeled as such.</p>
+    <div>
+      <h4>Authors — Equipo 4</h4>
+      <ul>
+        <li>Gibran Laija Godoy · A01638285</li>
+        <li>Jonathan Díaz Cortés · A01638641</li>
+        <li>Maria Laura Jaidar Nevarez · A01562352</li>
+        <li>Pablo Gilberto De León Quiroga · A01637255</li>
+        <li>Andrea Elisa Coutiño De Los Reyes · A00837665</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Project</h4>
+      <ul>
+        <li>Professor: Adriana García</li>
+        <li>Deliverables 2 → 4 · 2026</li>
+        <li>Macro analysis · FX exposure · Hedging</li>
+      </ul>
+    </div>
   </div>
+  <div class="wrap"><p class="legal">For academic purposes only. Not investment advice. Forecast figures are midpoints of published ranges and are labeled as such.</p></div>
 </footer>
 
-<!-- BUILD:JS  (build_static.py inlines script.js here for the Wix single-file export) -->
+</main>
+
 <script>
-/* ============================================================================
-   Arauco Mexico microsite - interactivity & charts
-   Uses Plotly.js (loaded via CDN in the page) for every chart so the same code
-   runs unchanged inside a Wix HTML Embed. No backend calls.
-
-   DATA below mirrors data/macroeconomic_data.csv. Every figure traces to
-   Deliverable 2 or Deliverable 4. Forecast midpoints are flagged in comments;
-   replace them here if you obtain more precise figures.
-   ========================================================================== */
-
-const NAVY = '#0A2540', GOLD = '#C9A961', GREY = '#8B8680', GREEN = '#3D8B5A', RED = '#B33A3A';
-const FONT = { family: 'Inter, system-ui, sans-serif', color: '#2C2C2C', size: 12 };
-
-/* ---- Source data (from the deliverables) -------------------------------- */
-const DATA = {
-  // Inflation: Mexico vs US, current readings + targets + end-2026 forecast.
-  // Source: D2 Table 1 & Table 3 (INEGI, BLS, Banxico, Fed SEP). US forecast = PCE midpoint.
-  inflation: {
-    categories: ['Headline CPI (Apr 2026)', 'Core CPI (Apr 2026)', 'Central-bank target', 'Forecast end-2026'],
-    mexico: [4.45, 4.26, 3.0, 3.75],          // 3.75 = midpoint of 3.5-4.0 consensus
-    us:     [3.8, 2.8, 2.0, 2.75]             // 2.75 = midpoint of 2.6-2.9 PCE (Fed SEP)
-  },
-  // Policy rates: current vs end-2026 forecast. Source: D2 Table 4 & Table 6.
-  rates: {
-    categories: ['Current (May 2026)', 'Forecast end-2026'],
-    banxico: [6.50, 6.40],                    // 6.40 = midpoint of 6.30-6.50
-    fed:     [3.625, 3.575]                   // midpoints of target range / dot-plot range
-  },
-  // GDP growth: Mexico vs US. Source: D2 Table 7 & Table 9.
-  gdp: {
-    categories: ['Q1 2026 (QoQ, SA)', 'Full-year 2025', '2026 forecast'],
-    mexico: [-0.8, 0.8, 1.2],                 // 1.2 = midpoint of 1.0-1.5 consensus
-    us:     [0.5, 2.1, 2.0]                    // 2.0 = midpoint of 1.8-2.4
-  },
-  // USD/MXN end-2026 forecasts by source. Source: D4 section 4.
-  fx: {
-    labels: ['Banxico Encuesta', 'Citi Survey', 'BBVA Research', 'Banorte/Hacienda', 'Vanguard/B.Base', 'Shield fwd (6m)'],
-    values: [19.23, 18.10, 18.00, 19.90, 18.00, 17.515]  // Banorte/Hacienda 19.90 = midpoint 19.30-20.50
-  },
-  spot: 17.25
+/* ===================== data (from the deliverables) ===================== */
+const ACCENT='#4F6F64', TAUPE='#B8AE9C', INK='#1B1B1B', GREY='#A8A8A2', POS='#3F7A5A', NEG='#B0584C';
+const FONT={family:'Inter, system-ui, sans-serif', color:'#1B1B1B', size:12};
+const DATA={
+  inflation:{categories:['Headline CPI (Apr)','Core CPI (Apr)','Target','Forecast end-2026'],
+    mexico:[4.45,4.26,3.0,3.75], us:[3.8,2.8,2.0,2.75]},                 // forecasts = range midpoints
+  rates:{categories:['Current (May 2026)','Forecast end-2026'], banxico:[6.50,6.40], fed:[3.625,3.575]},
+  gdp:{categories:['Q1 2026 (QoQ)','Full-year 2025','2026 forecast'], mexico:[-0.8,0.8,1.2], us:[0.5,2.1,2.0]},
+  fx:{labels:['Banxico Encuesta','Citi Survey','BBVA Research','Banorte/Hacienda','Vanguard/B.Base','Shield fwd (6m)'],
+      values:[19.23,18.10,18.00,19.90,18.00,17.515]},
+  spot:17.25
 };
+const baseLayout=(yT,xT)=>({font:FONT,paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+  margin:{l:54,r:16,t:12,b:46},legend:{orientation:'h',y:1.16,font:{size:11}},
+  yaxis:{title:{text:yT,font:{size:12}},gridcolor:'rgba(27,27,27,.07)',zerolinecolor:'rgba(27,27,27,.18)'},
+  xaxis:{title:{text:xT||'',font:{size:12}},gridcolor:'rgba(27,27,27,.04)'}});
+const CONFIG={responsive:true,displayModeBar:false};
 
-/* ---- Shared Plotly layout helpers --------------------------------------- */
-const baseLayout = (yTitle, xTitle) => ({
-  font: FONT,
-  paper_bgcolor: 'rgba(0,0,0,0)',
-  plot_bgcolor: 'rgba(0,0,0,0)',
-  margin: { l: 56, r: 18, t: 14, b: 48 },
-  legend: { orientation: 'h', y: 1.15, font: { size: 11 } },
-  yaxis: { title: { text: yTitle, font: { size: 12 } }, gridcolor: 'rgba(10,37,64,.08)', zerolinecolor: 'rgba(10,37,64,.25)' },
-  xaxis: { title: { text: xTitle || '', font: { size: 12 } }, gridcolor: 'rgba(10,37,64,.05)' }
-});
-const CONFIG = { responsive: true, displayModeBar: false };
-
-function renderMacroCharts() {
-  if (typeof Plotly === 'undefined') return;
-
-  // 1. Inflation (grouped bars)
-  Plotly.newPlot('chart-inflation', [
-    { x: DATA.inflation.categories, y: DATA.inflation.mexico, name: 'Mexico', type: 'bar', marker: { color: NAVY } },
-    { x: DATA.inflation.categories, y: DATA.inflation.us, name: 'United States', type: 'bar', marker: { color: GOLD } }
-  ], { ...baseLayout('% YoY'), barmode: 'group' }, CONFIG);
-
-  // 2. Interest rates (grouped bars)
-  Plotly.newPlot('chart-rates', [
-    { x: DATA.rates.categories, y: DATA.rates.banxico, name: 'Banxico', type: 'bar', marker: { color: NAVY } },
-    { x: DATA.rates.categories, y: DATA.rates.fed, name: 'Federal Reserve', type: 'bar', marker: { color: GOLD } }
-  ], { ...baseLayout('Policy rate (%)'), barmode: 'group' }, CONFIG);
-
-  // 3. GDP growth (grouped bars, includes negative values)
-  Plotly.newPlot('chart-gdp', [
-    { x: DATA.gdp.categories, y: DATA.gdp.mexico, name: 'Mexico', type: 'bar', marker: { color: NAVY } },
-    { x: DATA.gdp.categories, y: DATA.gdp.us, name: 'United States', type: 'bar', marker: { color: GOLD } }
-  ], { ...baseLayout('% growth'), barmode: 'group' }, CONFIG);
-
-  // 4. USD/MXN forecasts (horizontal bars + spot reference line)
-  const colors = DATA.fx.values.map(v => v >= 19 ? RED : (v <= 17.6 ? GREEN : NAVY));
-  Plotly.newPlot('chart-fx', [
-    { y: DATA.fx.labels, x: DATA.fx.values, type: 'bar', orientation: 'h',
-      marker: { color: colors }, text: DATA.fx.values.map(v => v.toFixed(2)), textposition: 'auto' }
-  ], {
-    ...baseLayout('', 'USD/MXN end-2026'),
-    margin: { l: 130, r: 18, t: 14, b: 48 },
-    shapes: [{ type: 'line', x0: DATA.spot, x1: DATA.spot, y0: -0.5, y1: DATA.fx.labels.length - 0.5,
-               line: { color: GOLD, width: 2, dash: 'dot' } }],
-    annotations: [{ x: DATA.spot, y: DATA.fx.labels.length - 0.5, text: 'Spot 17.25', showarrow: false,
-                    font: { color: '#8B8680', size: 11 }, yshift: 12 }]
-  }, CONFIG);
+function renderMacroCharts(){
+  if(typeof Plotly==='undefined')return;
+  Plotly.newPlot('chart-inflation',[
+    {x:DATA.inflation.categories,y:DATA.inflation.mexico,name:'Mexico',type:'bar',marker:{color:ACCENT}},
+    {x:DATA.inflation.categories,y:DATA.inflation.us,name:'United States',type:'bar',marker:{color:TAUPE}}
+  ],{...baseLayout('% YoY'),barmode:'group'},CONFIG);
+  Plotly.newPlot('chart-rates',[
+    {x:DATA.rates.categories,y:DATA.rates.banxico,name:'Banxico',type:'bar',marker:{color:ACCENT}},
+    {x:DATA.rates.categories,y:DATA.rates.fed,name:'Federal Reserve',type:'bar',marker:{color:TAUPE}}
+  ],{...baseLayout('Policy rate (%)'),barmode:'group'},CONFIG);
+  Plotly.newPlot('chart-gdp',[
+    {x:DATA.gdp.categories,y:DATA.gdp.mexico,name:'Mexico',type:'bar',marker:{color:ACCENT}},
+    {x:DATA.gdp.categories,y:DATA.gdp.us,name:'United States',type:'bar',marker:{color:TAUPE}}
+  ],{...baseLayout('% growth'),barmode:'group'},CONFIG);
+  const colors=DATA.fx.values.map(v=>v>=19?NEG:(v<=17.6?POS:INK));
+  Plotly.newPlot('chart-fx',[
+    {y:DATA.fx.labels,x:DATA.fx.values,type:'bar',orientation:'h',marker:{color:colors},
+     text:DATA.fx.values.map(v=>v.toFixed(2)),textposition:'auto'}
+  ],{...baseLayout('','USD/MXN end-2026'),margin:{l:128,r:16,t:12,b:46},
+     shapes:[{type:'line',x0:DATA.spot,x1:DATA.spot,y0:-0.5,y1:DATA.fx.labels.length-0.5,
+              line:{color:GREY,width:1.5,dash:'dot'}}],
+     annotations:[{x:DATA.spot,y:DATA.fx.labels.length-0.5,text:'Spot 17.25',showarrow:false,
+                   font:{color:GREY,size:11},yshift:12}]},CONFIG);
 }
 
-/* ===========================================================================
-   COLLAR CALCULATOR (Deliverable 4)
-   Garman-Kohlhagen FX option pricing. Defaults = Strategy B (18.00 / 16.85,
-   vol 12%, spot 17.25). Inputs from D4 section 5: r_d 6.60%, r_f 3.55%, T 0.5y,
-   notional $14.82M USD.
-   ========================================================================== */
-const TOTAL_USD = 14_820_000, R_D = 0.0660, R_F = 0.0355, T = 0.5;
-
-// Standard normal CDF (Abramowitz & Stegun approximation).
-function ncdf(x) {
-  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
-        a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-  const sign = x < 0 ? -1 : 1;
-  x = Math.abs(x) / Math.sqrt(2);
-  const t = 1 / (1 + p * x);
-  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-  return 0.5 * (1 + sign * y);
-}
-function gkCall(S, K, sig) {
-  const d1 = (Math.log(S / K) + (R_D - R_F + 0.5 * sig * sig) * T) / (sig * Math.sqrt(T));
-  const d2 = d1 - sig * Math.sqrt(T);
-  return S * Math.exp(-R_F * T) * ncdf(d1) - K * Math.exp(-R_D * T) * ncdf(d2);
-}
-function gkPut(S, K, sig) {
-  const d1 = (Math.log(S / K) + (R_D - R_F + 0.5 * sig * sig) * T) / (sig * Math.sqrt(T));
-  const d2 = d1 - sig * Math.sqrt(T);
-  return K * Math.exp(-R_D * T) * ncdf(-d2) - S * Math.exp(-R_F * T) * ncdf(-d1);
-}
-
-const SCENARIOS = [
-  { label: 'Bullish Peso', s: 15.50 },
-  { label: 'Bullish Peso', s: 16.50 },
-  { label: 'Bullish Peso', s: 17.00 },
-  { label: 'Base',         s: 17.50 },
-  { label: 'Base',         s: 18.00 },
-  { label: 'Bearish Peso', s: 19.00 },
-  { label: 'Bearish Peso', s: 20.00 }
-];
-
-let payoffInit = false;
-function recalcCollar() {
-  const $ = id => document.getElementById(id);
-  if (!$('cap')) return;
-  const cap = +$('cap').value, floor = +$('floor').value, sig = +$('vol').value, S = +$('spot').value;
-
-  $('capVal').textContent = cap.toFixed(2);
-  $('floorVal').textContent = floor.toFixed(2);
-  $('volVal').textContent = (sig * 100).toFixed(1) + '%';
-  $('spotVal').textContent = S.toFixed(2);
-
-  const F = S * Math.exp((R_D - R_F) * T);
-  const callP = gkCall(S, cap, sig), putP = gkPut(S, floor, sig);
-  const netPerUSD = callP - putP, netTotal = netPerUSD * TOTAL_USD;
-
-  $('callPrem').textContent = callP.toFixed(4);
-  $('putPrem').textContent = putP.toFixed(4);
-  $('netCost').textContent = (netTotal >= 0 ? '+' : '') + (netTotal / 1e6).toFixed(2) + ' M';
-  $('fwd').textContent = F.toFixed(3);
-
-  // Payoff series (total MXN cost of the USD purchase)
-  const range = [];
-  for (let s = 15; s <= 21.05; s += 0.05) range.push(+s.toFixed(2));
-  const unhedged = range.map(s => TOTAL_USD * s / 1e6);
-  const hedged = range.map(s => {
-    let r = s; if (s > cap) r = cap; else if (s < floor) r = floor;
-    return TOTAL_USD * r / 1e6;
-  });
-
-  if (typeof Plotly !== 'undefined') {
-    const traces = [
-      { x: range, y: unhedged, name: 'Cost WITHOUT hedge', mode: 'lines',
-        line: { color: GREY, width: 2, dash: 'dash' } },
-      { x: range, y: hedged, name: 'Cost WITH collar', mode: 'lines',
-        line: { color: NAVY, width: 3 } }
-    ];
-    const layout = {
-      ...baseLayout('Total cost of $14.82M (MXN millions)', 'USD/MXN at maturity'),
-      shapes: [
-        { type: 'line', x0: floor, x1: floor, y0: 220, y1: 320, line: { color: GOLD, width: 1, dash: 'dot' } },
-        { type: 'line', x0: cap, x1: cap, y0: 220, y1: 320, line: { color: GOLD, width: 1, dash: 'dot' } }
-      ],
-      annotations: [
-        { x: floor, y: 318, text: 'Floor ' + floor.toFixed(2), showarrow: false, font: { size: 10, color: RED } },
-        { x: cap, y: 318, text: 'Cap ' + cap.toFixed(2), showarrow: false, font: { size: 10, color: GREEN } }
-      ]
-    };
-    Plotly.react('payoffChart', traces, layout, CONFIG);
-    payoffInit = true;
+/* ===================== collar calculator ===================== */
+const TOTAL_USD=14820000, R_D=0.0660, R_F=0.0355, T=0.5;
+function ncdf(x){const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  const s=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);const t=1/(1+p*x);
+  const y=1-(((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);return 0.5*(1+s*y);}
+function gkCall(S,K,sig){const d1=(Math.log(S/K)+(R_D-R_F+0.5*sig*sig)*T)/(sig*Math.sqrt(T));const d2=d1-sig*Math.sqrt(T);
+  return S*Math.exp(-R_F*T)*ncdf(d1)-K*Math.exp(-R_D*T)*ncdf(d2);}
+function gkPut(S,K,sig){const d1=(Math.log(S/K)+(R_D-R_F+0.5*sig*sig)*T)/(sig*Math.sqrt(T));const d2=d1-sig*Math.sqrt(T);
+  return K*Math.exp(-R_D*T)*ncdf(-d2)-S*Math.exp(-R_F*T)*ncdf(-d1);}
+const SCEN=[{l:'Bullish Peso',s:15.50},{l:'Bullish Peso',s:16.50},{l:'Bullish Peso',s:17.00},
+  {l:'Base',s:17.50},{l:'Base',s:18.00},{l:'Bearish Peso',s:19.00},{l:'Bearish Peso',s:20.00}];
+function recalcCollar(){
+  const $=id=>document.getElementById(id); if(!$('cap'))return;
+  const cap=+$('cap').value,floor=+$('floor').value,sig=+$('vol').value,S=+$('spot').value;
+  $('capVal').textContent=cap.toFixed(2);$('floorVal').textContent=floor.toFixed(2);
+  $('volVal').textContent=(sig*100).toFixed(1)+'%';$('spotVal').textContent=S.toFixed(2);
+  const F=S*Math.exp((R_D-R_F)*T),callP=gkCall(S,cap,sig),putP=gkPut(S,floor,sig);
+  const netTotal=(callP-putP)*TOTAL_USD;
+  $('callPrem').textContent=callP.toFixed(4);$('putPrem').textContent=putP.toFixed(4);
+  $('netCost').textContent=(netTotal>=0?'+':'')+(netTotal/1e6).toFixed(2)+' M';$('fwd').textContent=F.toFixed(3);
+  const range=[];for(let s=15;s<=21.05;s+=0.05)range.push(+s.toFixed(2));
+  const unhedged=range.map(s=>TOTAL_USD*s/1e6);
+  const hedged=range.map(s=>{let r=s;if(s>cap)r=cap;else if(s<floor)r=floor;return TOTAL_USD*r/1e6;});
+  if(typeof Plotly!=='undefined'){
+    Plotly.react('payoffChart',[
+      {x:range,y:unhedged,name:'Cost without hedge',mode:'lines',line:{color:GREY,width:2,dash:'dash'}},
+      {x:range,y:hedged,name:'Cost with collar',mode:'lines',line:{color:ACCENT,width:3}}
+    ],{...baseLayout('Total cost of $14.82M (MXN millions)','USD/MXN at maturity'),
+      shapes:[{type:'line',x0:floor,x1:floor,y0:220,y1:320,line:{color:GREY,width:1,dash:'dot'}},
+              {type:'line',x0:cap,x1:cap,y0:220,y1:320,line:{color:GREY,width:1,dash:'dot'}}],
+      annotations:[{x:floor,y:318,text:'Floor '+floor.toFixed(2),showarrow:false,font:{size:10,color:NEG}},
+                   {x:cap,y:318,text:'Cap '+cap.toFixed(2),showarrow:false,font:{size:10,color:POS}}]},CONFIG);
   }
-
-  // P&L table
-  const body = document.getElementById('pnlBody');
-  if (body) {
-    body.innerHTML = SCENARIOS.map(scn => {
-      let r = scn.s; if (scn.s > cap) r = cap; else if (scn.s < floor) r = floor;
-      const unh = TOTAL_USD * scn.s / 1e6, hed = TOTAL_USD * r / 1e6;
-      const pnl = unh - hed - netTotal / 1e6;
-      const cls = pnl > 0.1 ? 'pos' : (pnl < -0.1 ? 'neg' : '');
-      const str = (pnl >= 0 ? '+' : '') + pnl.toFixed(2);
-      return `<tr><td>${scn.label}</td><td>${scn.s.toFixed(2)}</td><td>${unh.toFixed(2)}</td>` +
-             `<td>${hed.toFixed(2)}</td><td class="${cls}">${str}</td></tr>`;
-    }).join('');
-  }
+  const body=document.getElementById('pnlBody');
+  if(body){body.innerHTML=SCEN.map(scn=>{let r=scn.s;if(scn.s>cap)r=cap;else if(scn.s<floor)r=floor;
+    const unh=TOTAL_USD*scn.s/1e6,hed=TOTAL_USD*r/1e6,pnl=unh-hed-netTotal/1e6;
+    const cls=pnl>0.1?'pos':(pnl<-0.1?'neg':'');const str=(pnl>=0?'+':'')+pnl.toFixed(2);
+    return `<tr><td>${scn.l}</td><td>${scn.s.toFixed(2)}</td><td>${unh.toFixed(2)}</td><td>${hed.toFixed(2)}</td><td class="${cls}">${str}</td></tr>`;
+  }).join('');}
 }
 
-/* ---- Navigation (mobile toggle + active highlight) ---------------------- */
-function initNav() {
-  const toggle = document.querySelector('.nav-toggle');
-  const links = document.querySelector('.nav-links');
-  if (toggle && links) {
-    toggle.addEventListener('click', () => links.classList.toggle('open'));
-    links.querySelectorAll('a').forEach(a => a.addEventListener('click', () => links.classList.remove('open')));
-  }
+/* ===================== section navigation ===================== */
+const initialized={data:false};
+function resizeAll(ids){if(typeof Plotly==='undefined')return;
+  ids.forEach(i=>{const e=document.getElementById(i);if(e&&e.querySelector('.plotly'))Plotly.Plots.resize(e);});}
+function showView(id){
+  if(!document.getElementById(id)||!document.getElementById(id).classList.contains('view'))id='home';
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+  document.querySelectorAll('[data-target]').forEach(a=>a.classList.toggle('current',a.getAttribute('data-target')===id));
+  document.querySelector('.nav-links').classList.remove('open');
+  window.scrollTo(0,0);
+  if(id==='data'){ if(!initialized.data){renderMacroCharts();initialized.data=true;} else resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']); }
+  if(id==='hedging'){ recalcCollar(); }
+  if(history.replaceState)history.replaceState(null,'','#'+id);
 }
-
-/* ---- Boot --------------------------------------------------------------- */
-document.addEventListener('DOMContentLoaded', () => {
-  initNav();
-  renderMacroCharts();
-  ['cap', 'floor', 'vol', 'spot'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('input', recalcCollar);
-  });
-  recalcCollar();
-  // Re-fit Plotly charts on resize (Wix containers can change size dynamically)
-  window.addEventListener('resize', () => {
-    if (typeof Plotly === 'undefined') return;
-    ['chart-inflation', 'chart-rates', 'chart-gdp', 'chart-fx', 'payoffChart']
-      .forEach(id => { const el = document.getElementById(id); if (el) Plotly.Plots.resize(el); });
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('[data-target]').forEach(el=>el.addEventListener('click',()=>showView(el.getAttribute('data-target'))));
+  document.querySelector('.nav-toggle').addEventListener('click',()=>document.querySelector('.nav-links').classList.toggle('open'));
+  ['cap','floor','vol','spot'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',recalcCollar);});
+  showView((location.hash||'home').replace('#',''));
+  window.addEventListener('resize',()=>{
+    const active=document.querySelector('.view.active');
+    if(!active)return;
+    if(active.id==='data')resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']);
+    if(active.id==='hedging')resizeAll(['payoffChart']);
   });
 });
-
 </script>
 </body>
 </html>
