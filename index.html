@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Arauco México · FX & Hedging Strategy</title>
-<meta name="description" content="Macroeconomic environment, FX exposure and a combined derivatives hedging strategy for Arauco México's urea and methanol purchases.">
+<meta name="description" content="Macroeconomic environment, FX risks and a combined derivatives hedging strategy for Arauco México's urea and methanol purchases.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@ a{color:var(--accent);text-decoration:none;}
 .brand{display:flex;align-items:center;gap:.55rem;font-weight:600;font-size:1rem;
   letter-spacing:-.01em;color:var(--ink);cursor:pointer;}
 .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
-.nav-links{display:flex;gap:1.6rem;list-style:none;margin:0;padding:0;}
+.nav-links{display:flex;gap:1.7rem;list-style:none;margin:0;padding:0;}
 .nav-links a{color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;
   padding-bottom:2px;border-bottom:1.5px solid transparent;transition:color .2s,border-color .2s;}
 .nav-links a:hover{color:var(--ink);}
@@ -58,8 +58,10 @@ main{padding-top:62px;}
 .view.active{display:block;}
 @keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .sec{padding:72px 0;}
+.sec+.sec{padding-top:0;}
 .sec-head{max-width:64ch;margin-bottom:3rem;}
 .sec-head p{color:var(--muted);font-size:1.05rem;}
+.divider{border:0;border-top:1px solid var(--line);margin:0;}
 
 /* ---- buttons ---- */
 .btn{display:inline-block;padding:.75rem 1.5rem;border-radius:6px;font-weight:500;
@@ -70,7 +72,7 @@ main{padding-top:62px;}
 .btn-line:hover{border-color:var(--accent);color:var(--accent);}
 
 /* ---- hero ---- */
-.hero{padding:96px 0 64px;}
+.hero{padding:96px 0 56px;}
 .hero .lead{font-size:clamp(1.05rem,1.8vw,1.25rem);color:var(--muted);max-width:60ch;font-weight:400;}
 .hero .meta{margin-top:1.6rem;font-size:.82rem;color:var(--muted);letter-spacing:.02em;}
 .hero .cta{margin-top:2.2rem;display:flex;gap:.7rem;flex-wrap:wrap;}
@@ -82,7 +84,7 @@ main{padding-top:62px;}
 .g2{grid-template-columns:repeat(2,1fr);}
 .auto{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.5rem;
-  transition:border-color .2s,transform .2s;}
+  transition:border-color .2s;}
 .card:hover{border-color:var(--line-strong);}
 .card h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem;}
 .card p{font-size:.88rem;color:var(--muted);margin:0;}
@@ -93,6 +95,11 @@ main{padding-top:62px;}
   text-transform:uppercase;color:var(--accent);}
 .card.lead-accent{border-left:2px solid var(--accent);}
 .card.lead-neg{border-left:2px solid var(--neg);}
+
+/* ---- callout ---- */
+.callout{background:var(--accent-soft);border:1px solid #DCE5E0;border-radius:10px;padding:1.6rem 1.8rem;}
+.callout h4{color:var(--accent);font-size:1rem;}
+.callout p{margin:0;font-size:.92rem;color:var(--ink);}
 
 /* ---- charts ---- */
 .chart-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem;}
@@ -184,19 +191,16 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 </head>
 <body>
 
-<!-- ===================== NAV ===================== -->
+<!-- ===================== NAV / MENU ===================== -->
 <nav class="nav">
   <div class="wrap">
     <div class="brand" data-target="home"><span class="dot"></span>Shield Consulting</div>
     <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a data-target="home">Home</a></li>
-      <li><a data-target="summary">Summary</a></li>
-      <li><a data-target="economy">Economy</a></li>
-      <li><a data-target="data">Data</a></li>
-      <li><a data-target="hedging">Hedging</a></li>
-      <li><a data-target="recommendation">Recommendation</a></li>
-      <li><a data-target="references">Sources</a></li>
+      <li><a data-target="macro">Macroeconomic Variables</a></li>
+      <li><a data-target="risks">Risks</a></li>
+      <li><a data-target="hedging">Hedging Strategy</a></li>
     </ul>
   </div>
 </nav>
@@ -214,9 +218,10 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
     <div class="meta">6-month horizon · Urea + Methanol · $14.82M USD notional · Spot 17.25 (May 2026)</div>
     <div class="cta">
       <span class="btn btn-fill" data-target="hedging">View the hedging strategy</span>
-      <span class="btn btn-line" data-target="data">Explore the data</span>
+      <span class="btn btn-line" data-target="macro">Explore the data</span>
     </div>
   </div>
+
   <div class="wrap sec" style="padding-top:0">
     <div class="grid g4">
       <div class="card"><div class="ico">◷</div><h4>Macroeconomic environment</h4><p>Weak GDP, sticky inflation and a fragile super-peso going into the USMCA review.</p></div>
@@ -225,43 +230,33 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
       <div class="card"><div class="ico">◇</div><h4>Hedging strategy</h4><p>A low-cost collar combining a long USD call and a short USD put.</p></div>
     </div>
   </div>
-</section>
 
-<!-- ===================== SUMMARY ===================== -->
-<section class="view" id="summary">
-  <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Executive Summary</span>
-      <h2>The macroeconomic picture in mid-2026</h2>
-      <p>Arauco México operates inside a <b>structurally weakening economy</b> (Q1 2026 GDP −0.8% QoQ, S&amp;P outlook
-        cut to negative) yet faces a <b>structurally strong peso</b> (USD/MXN ≈ 17.25) driven by a ~287 bps interest-rate
-        differential. Overlaying both is the binary risk of the USMCA review beginning <b>July 1, 2026</b>.</p>
+  <div class="wrap sec" style="padding-top:0">
+    <div class="sec-head" style="margin-bottom:1.6rem">
+      <span class="eyebrow">At a glance</span>
+      <h2>The picture in mid-2026</h2>
+      <p>Arauco México operates inside a structurally weakening economy yet faces a structurally strong peso —
+        with the USMCA review (July 1, 2026) as the dominant binary risk.</p>
     </div>
     <div class="grid g4">
-      <div class="card"><h4>GDP contraction</h4><div class="stat">−0.8%<small> QoQ Q1'26</small></div><p>Worst Q1 since 2020; all three sectors fell. Fixed investment down for 17 straight months.</p><span class="tag">Demand risk</span></div>
-      <div class="card"><h4>Rate differential</h4><div class="stat">+287<small> bps</small></div><p>Banxico 6.50% vs Fed 3.625%. The carry trade holds the peso up — and can unwind.</p><span class="tag">FX driver</span></div>
-      <div class="card"><h4>Inflation gap</h4><div class="stat">+0.65<small> pp</small></div><p>Mexico 4.45% vs US 3.8% (Apr). Expected to widen toward +1.0–1.3 pp by year-end.</p><span class="tag">PPP pressure</span></div>
-      <div class="card"><h4>USD/MXN spot</h4><div class="stat">17.25</div><p>Near multi-year lows. Consensus clusters at 18.0–19.2 for end-2026 — a depreciation bias.</p><span class="tag">Exposure base</span></div>
-    </div>
-    <h3 style="margin-top:3rem">Main risks for Arauco México</h3>
-    <div class="grid g2">
-      <div class="card lead-neg"><h4>USMCA review — the dominant event risk</h4><p>Formal review begins July 1, 2026. A failed review could depreciate the peso 5–15%, calling for asymmetric, option-based protection.</p></div>
-      <div class="card lead-neg"><h4>Carry-trade unwind</h4><p>A BoJ hike, Fed pause or trade shock could trigger a sharp, asymmetric USD/MXN spike — the tail the hedge must cover.</p></div>
-      <div class="card lead-accent"><h4>Sticky inflation + weak growth</h4><p>A stagflationary undertone is structurally bearish for the peso medium-term, even while the carry trade masks it.</p></div>
-      <div class="card lead-accent"><h4>Shifting exposure profile</h4><p>The Alacrán Project raises USD revenue exposure, eroding the old natural hedge and making active hedging more important.</p></div>
+      <div class="card"><h4>GDP contraction</h4><div class="stat">−0.8%<small> QoQ Q1'26</small></div><p>Worst Q1 since 2020; fixed investment down 17 straight months.</p><span class="tag">Demand risk</span></div>
+      <div class="card"><h4>Rate differential</h4><div class="stat">+287<small> bps</small></div><p>Banxico 6.50% vs Fed 3.625% — the carry trade holds the peso up.</p><span class="tag">FX driver</span></div>
+      <div class="card"><h4>Inflation gap</h4><div class="stat">+0.65<small> pp</small></div><p>Mexico 4.45% vs US 3.8%; expected to widen by year-end.</p><span class="tag">PPP pressure</span></div>
+      <div class="card"><h4>USD/MXN spot</h4><div class="stat">17.25</div><p>Near multi-year lows; consensus 18.0–19.2 for end-2026.</p><span class="tag">Exposure base</span></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== ECONOMY ===================== -->
-<section class="view" id="economy">
+<!-- ===================== MACROECONOMIC VARIABLES ===================== -->
+<section class="view" id="macro">
   <div class="wrap sec">
     <div class="sec-head">
-      <span class="eyebrow">Economic Analysis</span>
+      <span class="eyebrow">Macroeconomic Variables</span>
       <h2>How the macro variables affect Arauco</h2>
       <p>Five indicators shape the FX outlook. Each is summarized with its recent trend and the concrete business
-        impact for Arauco México.</p>
+        impact for Arauco México, followed by interactive charts.</p>
     </div>
+
     <div class="grid auto">
       <div class="card"><h4>Inflation differential</h4><p><b>Measures:</b> Mexico vs US CPI — a PPP anchor.<br><b>Trend:</b> Mexico eased to 4.45% (Apr); US rose to 3.8%. Gap ≈ +0.65 pp.<br><b>Impact:</b> Local costs rise faster than USD inputs, eroding the natural hedge.</p></div>
       <div class="card"><h4>Interest rate differential</h4><p><b>Measures:</b> Banxico vs Fed — the carry-trade engine.<br><b>Trend:</b> Banxico 6.50% (easing over); Fed 3.50–3.75%. ≈ +287 bps.<br><b>Impact:</b> Props the peso up but is fragile; any unwind raises Arauco's cost of dollars.</p></div>
@@ -271,16 +266,14 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
       <div class="card"><h4>USMCA review &amp; energy</h4><p><b>Measures:</b> Structural / event risk.<br><b>Trend:</b> Review opens July 1; Strait-of-Hormuz disruption lifts energy and urea prices.<br><b>Impact:</b> Binary peso risk plus a direct cost shock to urea.</p></div>
     </div>
   </div>
-</section>
 
-<!-- ===================== DATA ===================== -->
-<section class="view" id="data">
+  <hr class="divider">
+
   <div class="wrap sec">
     <div class="sec-head">
       <span class="eyebrow">Data Visualization</span>
       <h2>The numbers behind the analysis</h2>
-      <p>Interactive charts for the key macro variables. Forecast bars use the midpoint of each published range;
-        hover any bar for the exact value.</p>
+      <p>Forecast bars use the midpoint of each published range; hover any bar for the exact value.</p>
     </div>
     <div class="grid g2">
       <div class="chart-box">
@@ -315,7 +308,46 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
   </div>
 </section>
 
-<!-- ===================== HEDGING ===================== -->
+<!-- ===================== RISKS ===================== -->
+<section class="view" id="risks">
+  <div class="wrap sec">
+    <div class="sec-head">
+      <span class="eyebrow">Risks &amp; Structural Environment</span>
+      <h2>What can move the peso against Arauco</h2>
+      <p>Beyond the cyclical indicators, a set of structural and event-driven factors define Arauco México's FX risk.
+        These are the forces the hedging strategy is built to withstand.</p>
+    </div>
+
+    <div class="callout" style="margin-bottom:2.4rem">
+      <h4>Dominant event risk · USMCA review (begins July 1, 2026)</h4>
+      <p>The formal review can confirm continuation to 2042 or revise the agreement. Three paths: a clean renewal
+        (peso strengthens on relief), an imperfect renewal (range-bound volatility), or a failed review that turns
+        into serial annual reviews — which analysts estimate could depreciate the peso <b>5–15%</b>. Because the
+        Alacrán Project depends on tariff-free access to U.S. and Canadian plants, this is the single most important
+        event for Arauco's 2026 FX exposure, and it calls for asymmetric, option-based protection.</p>
+    </div>
+
+    <h3>Main risks for Arauco México</h3>
+    <div class="grid g2" style="margin-bottom:2.6rem">
+      <div class="card lead-neg"><h4>Carry-trade unwind</h4><p>A BoJ hike, a Fed pause, or a trade shock could trigger a sharp, asymmetric USD/MXN spike — the tail the hedge must cover.</p></div>
+      <div class="card lead-neg"><h4>Sovereign downgrade</h4><p>S&amp;P cut Mexico's outlook to negative (May 13, 2026) on slow fiscal consolidation. A downgrade would force bond outflows and pressure the peso.</p></div>
+      <div class="card lead-accent"><h4>Sticky inflation + weak growth</h4><p>A stagflationary undertone is structurally bearish for the peso medium-term, even while the carry trade masks it short-term.</p></div>
+      <div class="card lead-accent"><h4>Shifting exposure profile</h4><p>The Alacrán Project raises USD revenue exposure, eroding the old natural hedge and making active hedging more important, not less.</p></div>
+    </div>
+
+    <h3>Policy &amp; structural backdrop</h3>
+    <div class="grid auto">
+      <div class="card"><h4>Monetary policy</h4><p>The wide ~287 bps rate gap favors the peso near-term but is fragile. Banxico signalled its easing cycle is over; any combination of further cuts or a Fed pause could shift USD/MXN sharply.</p></div>
+      <div class="card"><h4>Fiscal policy</h4><p>The 2026 budget runs a 4.1% deficit with PEMEX support and welfare rigidity. Fiscal pressure is the primary medium-term peso risk and underlies the S&amp;P outlook cut.</p></div>
+      <div class="card"><h4>Socio-political</h4><p>Sheinbaum manages inherited fiscal stress, the judicial reform, and U.S. tariff pressure via "quiet diplomacy"; Trump's trade posture keeps cross-border investment economics uncertain.</p></div>
+      <div class="card"><h4>Regulation</h4><p>Customs reform (Ley Aduanera, Jan 2026), anti-China tariffs, and tighter NOM environmental standards affect Arauco's import logistics; USMCA rules-of-origin tightening is the dominant regulatory risk.</p></div>
+      <div class="card"><h4>Energy shock</h4><p>The Strait-of-Hormuz disruption lifts U.S. inflation and has pushed urea up ~81% YoY — a direct cost shock to Arauco's resin feedstock and a driver of the larger hedge notional.</p></div>
+      <div class="card"><h4>Nearshoring slowdown</h4><p>17 consecutive months of declining fixed investment weaken the industrial-construction demand outlook, while making the Alacrán export bet more strategically valuable if USMCA holds.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HEDGING STRATEGY ===================== -->
 <section class="view" id="hedging">
   <div class="wrap sec">
     <div class="sec-head">
@@ -448,18 +480,11 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
       </table>
     </div>
     <p class="caption">Net of the MXN 1.16M premium. Positive (green) = collar saves money; negative (red) = opportunity cost in a strong-peso scenario.</p>
-  </div>
-</section>
 
-<!-- ===================== RECOMMENDATION ===================== -->
-<section class="view" id="recommendation">
-  <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Decision Brief</span>
-      <h2>Final executive recommendation</h2>
-    </div>
+    <hr class="divider" style="margin:3.5rem 0">
+
+    <h3>Final executive recommendation</h3>
     <div class="brief">
-      <h3>For the CFO</h3>
       <p>We recommend executing a <span class="hl">6-month USD/MXN collar at 18.00 / 16.85</span> for Arauco México's
         urea and methanol exposure, with a total notional of <span class="hl">$14.82M USD</span>. Net upfront cost:
         <span class="hl">MXN 1.16M</span>.</p>
@@ -475,18 +500,10 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         <li>Aligns the cap with the USMCA stress level (review begins July 1, 2026).</li>
         <li><b>Next steps:</b> obtain ISDA quotes from BBVA / Banorte / Citi México, confirm volumes with procurement, and execute as a single package.</li>
       </ul>
-      <p class="muted" style="font-size:.9rem">This recommendation does not claim to predict the future; it is based on the best available market information as of May 2026. We explicitly chose not to lock the forward (forfeits upside), buy a naked call (cash drain), or remain unhedged (uncovered tail risk).</p>
+      <p class="muted" style="font-size:.9rem">This recommendation does not claim to predict the future; it is based on the best available market information as of May 2026.</p>
     </div>
-  </div>
-</section>
 
-<!-- ===================== REFERENCES ===================== -->
-<section class="view" id="references">
-  <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Sources</span>
-      <h2>References</h2>
-    </div>
+    <h3 style="margin-top:3rem">Sources</h3>
     <ol class="refs">
       <li><b>Banco de México</b> — USD/MXN FIX, Monetary Policy Statement (May 7, 2026), Encuesta de Expectativas.</li>
       <li><b>INEGI</b> — INPC April 2026; GDP flash estimate Q1 2026; ENEC construction survey.</li>
@@ -530,7 +547,7 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
       <ul>
         <li>Professor: Adriana García</li>
         <li>Deliverables 2 → 4 · 2026</li>
-        <li>Macro analysis · FX exposure · Hedging</li>
+        <li>Macro analysis · FX risks · Hedging</li>
       </ul>
     </div>
   </div>
@@ -625,7 +642,7 @@ function recalcCollar(){
 }
 
 /* ===================== section navigation ===================== */
-const initialized={data:false};
+const initialized={macro:false};
 function resizeAll(ids){if(typeof Plotly==='undefined')return;
   ids.forEach(i=>{const e=document.getElementById(i);if(e&&e.querySelector('.plotly'))Plotly.Plots.resize(e);});}
 function showView(id){
@@ -634,7 +651,7 @@ function showView(id){
   document.querySelectorAll('[data-target]').forEach(a=>a.classList.toggle('current',a.getAttribute('data-target')===id));
   document.querySelector('.nav-links').classList.remove('open');
   window.scrollTo(0,0);
-  if(id==='data'){ if(!initialized.data){renderMacroCharts();initialized.data=true;} else resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']); }
+  if(id==='macro'){ if(!initialized.macro){renderMacroCharts();initialized.macro=true;} else resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']); }
   if(id==='hedging'){ recalcCollar(); }
   if(history.replaceState)history.replaceState(null,'','#'+id);
 }
@@ -646,7 +663,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.addEventListener('resize',()=>{
     const active=document.querySelector('.view.active');
     if(!active)return;
-    if(active.id==='data')resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']);
+    if(active.id==='macro')resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']);
     if(active.id==='hedging')resizeAll(['payoffChart']);
   });
 });
