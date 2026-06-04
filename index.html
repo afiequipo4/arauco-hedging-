@@ -82,7 +82,7 @@ main{padding-top:72px;}
 
 /* reveal animation — re-fires each time a view becomes active */
 .reveal{opacity:0;transform:translateY(22px);}
-.view.active .reveal{animation:revealUp .8s cubic-bezier(.2,.75,.2,1) forwards;}
+.reveal.in{animation:revealUp .7s cubic-bezier(.2,.75,.2,1) forwards;}
 @keyframes revealUp{to{opacity:1;transform:none;}}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;}.view.active .reveal{animation:none;}}
 
@@ -495,6 +495,22 @@ footer .legal{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid rgba(244
         maximum protection in a bearish-peso crisis: <b>MXN 29.6M</b>.</p>
     </div>
 
+    <div class="card lead-accent reveal" style="margin-bottom:2.8rem">
+      <span class="ico">💡</span>
+      <h4>In plain English — what are we actually doing?</h4>
+      <p style="color:var(--ink-soft);font-size:.97rem">Every month Arauco must buy US dollars to pay for its urea and methanol. The problem: if the
+        Mexican peso weakens, each dollar costs <b>more pesos</b> — and Arauco's costs jump. A <b>collar</b> protects
+        against that, and it works much like <b>insurance with a small trade-off</b>:</p>
+      <ul style="color:var(--ink-soft);font-size:.95rem;margin:.2rem 0 1rem 1.1rem;line-height:1.75">
+        <li><b>A price ceiling (18.00).</b> No matter how expensive the dollar gets, Arauco will never pay more than 18.00 pesos per dollar. This is the protection.</li>
+        <li><b>A price floor (16.85).</b> In return, Arauco gives up the windfall if the dollar becomes very cheap: it agrees to pay at least 16.85 pesos per dollar.</li>
+        <li><b>The trade-off pays for itself.</b> The benefit Arauco gives up at the floor covers almost the whole cost of the ceiling — so the protection costs only <b>0.45%</b> of the amount being hedged, instead of a large upfront fee.</li>
+      </ul>
+      <p style="color:var(--ink-soft);font-size:.97rem;margin:0"><b>The result:</b> Arauco knows its worst case and its best case in advance, and moves freely in between — no nasty
+        surprises before the high-stakes USMCA trade decision in July 2026. We chose this over a plain forward (which would
+        cancel any benefit if the peso strengthens) and over buying insurance alone (which would drain too much cash upfront).</p>
+    </div>
+
     <h3 class="reveal">Context &amp; FX exposure</h3>
     <p class="muted reveal">Arauco buys urea and methanol — both priced in USD — as inputs to resin and formalin production,
       while its revenue is predominantly MXN. This is a net USD payable exposure: <b>when the peso weakens, the MXN
@@ -552,6 +568,29 @@ footer .legal{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid rgba(244
     </div>
     <p class="caption reveal">Strategy B was chosen for the best balance of protection breadth, cost, and alignment with the forecast scenarios.</p>
 
+    <h3 style="margin-top:3.4rem" class="reveal">Why exactly 18.00 and 16.85?</h3>
+    <p class="muted reveal">These two numbers are the heart of the strategy. Here is the plain reasoning behind each — no jargon.</p>
+    <div class="grid g2 reveal">
+      <div class="card lead-accent">
+        <span class="tag">The ceiling · protection</span>
+        <h4>Cap 18.00 — the most Arauco will ever pay</h4>
+        <p>Independent forecasts expect the dollar to end 2026 between roughly <b>18.0 and 19.2 pesos</b>, and 18.00 is the
+          level where things start to get dangerous — especially if the July 2026 USMCA trade talks go badly. By placing
+          the ceiling right here, Arauco only "uses" its protection when the peso <b>genuinely</b> weakens, not for small
+          everyday moves. That is what keeps the strategy cheap.</p>
+      </div>
+      <div class="card lead-accent">
+        <span class="tag">The floor · funding</span>
+        <h4>Floor 16.85 — the least Arauco will ever pay</h4>
+        <p>16.85 sits <b>just below the strongest the peso has been in years</b> (about 17.10 in February 2026). In plain
+          terms: the dollar almost never gets cheaper than this. So Arauco keeps nearly all of the benefit if the peso
+          strengthens, while its promise to buy at 16.85 is exactly what <b>pays for</b> the protection above.</p>
+      </div>
+    </div>
+    <p class="caption reveal" style="margin-top:1.2rem">We tested five versions of the collar (table above): tighter ones (A) cost too much, wider ones (D) give away too much
+      protection, and the others don't improve on the balance. <b>Strategy B (18.00 / 16.85)</b> is the balanced middle —
+      full protection where it matters, for just <b>0.45%</b> of the hedged amount (MXN 1.16M on a $14.82M position).</p>
+
     <h3 style="margin-top:3.4rem" class="reveal">Strategy analysis</h3>
     <div class="grid g2 reveal">
       <div class="card lead-accent"><h4>When it helps</h4><p>Any move above the 18.00 cap — especially a USMCA-driven spike. At 20.00, the collar saves MXN 29.6M.</p></div>
@@ -561,6 +600,27 @@ footer .legal{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid rgba(244
     </div>
 
     <h3 style="margin-top:3.4rem" class="reveal">Valuation — inputs &amp; sensitivity</h3>
+    <p class="muted reveal">Here is exactly how the numbers are produced — and why the method is the right one.</p>
+    <div class="card lead-accent reveal" style="margin:0 0 2rem">
+      <span class="ico">🧮</span>
+      <h4>How the strategy is calculated</h4>
+      <ul style="color:var(--ink-soft);font-size:.95rem;margin:.2rem 0 1rem 1.1rem;line-height:1.75">
+        <li><b>Each leg is priced with the Garman-Kohlhagen model</b> — the version of the Nobel-winning Black-Scholes
+          formula built specifically for currencies. In plain terms, it estimates the fair price (premium) of an option
+          from five things we can observe today: the spot rate, the peso interest rate, the dollar interest rate, the
+          time to maturity, and the expected size of the swings (volatility).</li>
+        <li><b>The 6-month forward (17.515) is not a forecast</b> — it comes from interest-rate parity. Because peso rates
+          (6.60%) are higher than dollar rates (3.55%), the dollar is contractually "expected" to be slightly more
+          expensive in six months. This is the neutral, no-arbitrage anchor every bank uses.</li>
+        <li><b>The net cost is a simple subtraction:</b> the premium Arauco pays for the call (the ceiling) minus the
+          premium it receives for the put (the floor), multiplied by the $14.82M notional. In the central case that is
+          +MXN 1.16M.</li>
+      </ul>
+      <p style="color:var(--ink-soft);font-size:.95rem;margin:0"><b>Why this method:</b> Garman-Kohlhagen is the market standard for FX options — it is what trading desks at BBVA,
+        Banorte or Citi use to quote these structures. Crucially, it accounts for <b>both</b> countries' interest rates
+        (the "cost of carry"), which a plain stock-option formula would ignore. Every input below is public and sourced,
+        so the price is fully reproducible and defensible.</p>
+    </div>
     <div class="grid g2 reveal">
       <div class="table-scroll">
         <table class="data">
@@ -590,6 +650,26 @@ footer .legal{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid rgba(244
       </div>
     </div>
     <p class="caption reveal">The strategy's cost is stable across plausible volatility regimes — even at 14% the net cost stays under MXN 1.3M (0.50% of notional).</p>
+
+    <div class="card lead-accent reveal" style="margin-top:1.8rem">
+      <span class="ico">📊</span>
+      <h4>Why we used 12% volatility (and tested 10%–14%)</h4>
+      <p style="color:var(--ink-soft);font-size:.95rem">Volatility measures how much USD/MXN is expected to swing. It is the only input that cannot be read directly off a
+        screen, so it has to be justified carefully:</p>
+      <ul style="color:var(--ink-soft);font-size:.95rem;margin:.2rem 0 1rem 1.1rem;line-height:1.75">
+        <li><b>12% is the central case</b> because it matches the implied volatility quoted on 6-month USD/MXN options around
+          May 2026. It fits the peso's profile: a liquid emerging-market currency that is moderately volatile — calmer than
+          crisis levels (above 15%) but more active than stable developed-market pairs such as EUR/USD.</li>
+        <li><b>We do not bet on a single number.</b> We re-priced the entire strategy at 10%, 12% and 14% to stress-test the
+          assumption. The net cost moves only from MXN 1.04M to 1.26M — still under 0.50% of the notional in every case.</li>
+        <li><b>The collar is naturally robust to this guess.</b> Higher volatility makes both options more expensive, but
+          Arauco buys one and sells the other, so the effects largely cancel out. That stability is a key reason the collar
+          is attractive: the recommendation does not hinge on getting volatility exactly right.</li>
+      </ul>
+      <p style="color:var(--ink-soft);font-size:.95rem;margin:0"><b>Honest caveat:</b> implied volatility is a market estimate, not a certainty. If actual swings differ, the strategy's
+        mid-life mark-to-market value would change — but the cost outcomes at maturity are fixed by the cap and floor, so the
+        protection itself is unaffected.</p>
+    </div>
 
     <h3 style="margin-top:3.4rem" class="reveal">Interactive collar calculator</h3>
     <p class="muted reveal">Adjust the strikes, volatility or spot and the payoff chart, premiums and P&amp;L table update live. Defaults reflect the recommended Strategy B.</p>
@@ -798,10 +878,10 @@ function countUp(el){
 const initialized={macro:false};
 function resizeAll(ids){if(typeof Plotly==='undefined')return;
   ids.forEach(i=>{const e=document.getElementById(i);if(e&&e.querySelector('.plotly'))Plotly.Plots.resize(e);});}
-function revealStagger(view){
-  const items=view.querySelectorAll('.reveal');
-  items.forEach((el,i)=>{el.style.animation='none';void el.offsetWidth;el.style.animationDelay=(i*70)+'ms';el.style.animation='';});
-}
+const _io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); _io.unobserve(e.target); } });
+},{threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+function revealStagger(view){ view.querySelectorAll('.reveal').forEach(el=>{ el.classList.remove('in'); _io.observe(el); }); }
 function showView(id){
   if(!document.getElementById(id)||!document.getElementById(id).classList.contains('view'))id='home';
   const view=document.getElementById(id);
