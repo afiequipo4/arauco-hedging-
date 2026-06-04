@@ -3,189 +3,287 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Arauco México · FX & Hedging Strategy</title>
+<title>Arauco México · FX Risk & Hedging Strategy — Shield Consulting</title>
 <meta name="description" content="Macroeconomic environment, FX risks and a combined derivatives hedging strategy for Arauco México's urea and methanol purchases.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
 <style>
 /* ============================================================
-   Minimalist palette
-   ink #1B1B1B · warm white #FBFBF9 · line #EAEAE6
-   single accent: muted sage #4F6F64
+   SHIELD CONSULTING — Editorial Finance / Quiet Luxury
+   Palette: forest emerald #14342A · champagne gold #C2A04C
+            warm paper #F4F1EA · ink #1A211D
+   Type: Fraunces (display serif) · Inter (sans) · JetBrains Mono (data)
    ============================================================ */
 :root{
-  --bg:#FBFBF9; --surface:#FFFFFF; --ink:#1B1B1B; --muted:#6E6E6A;
-  --line:#EAEAE6; --line-strong:#DBDBD5;
-  --accent:#4F6F64; --accent-soft:#EEF2F0; --taupe:#B8AE9C;
-  --pos:#3F7A5A; --neg:#B0584C;
+  --paper:#F4F1EA; --paper-2:#EFEBE1; --surface:#FFFFFF;
+  --ink:#1A211D; --ink-soft:#3C463F; --muted:#6E756C;
+  --line:#E2DCCF; --line-soft:#ECE7DB;
+  --forest:#14342A; --forest-2:#0C2019; --emerald:#1F5C45; --emerald-bright:#2E7C5C;
+  --gold:#C2A04C; --gold-bright:#D8B968; --gold-deep:#9E7E32;
+  --pos:#2E7C5C; --neg:#B0584C;
   --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --shadow-sm:0 1px 2px rgba(20,52,42,.04),0 2px 8px rgba(20,52,42,.05);
+  --shadow:0 8px 30px -8px rgba(20,52,42,.16),0 2px 8px rgba(20,52,42,.06);
+  --shadow-lg:0 30px 70px -20px rgba(12,32,25,.5);
+  --r:16px;
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--bg);
-  line-height:1.7;font-weight:400;-webkit-font-smoothing:antialiased;}
-h1,h2,h3,h4{font-weight:600;line-height:1.15;letter-spacing:-.01em;margin:0 0 .5em;color:var(--ink);}
-h1{font-size:clamp(2.1rem,5vw,3.4rem);font-weight:600;letter-spacing:-.02em;}
-h2{font-size:clamp(1.5rem,3vw,2.1rem);}
-h3{font-size:1.15rem;}
+body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--paper);
+  line-height:1.7;font-weight:400;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(rgba(20,52,42,.025) 1px,transparent 1px);
+  background-size:22px 22px;}
+::selection{background:var(--gold);color:var(--forest-2);}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.08;letter-spacing:-.015em;margin:0 0 .5em;color:var(--ink);}
+h1{font-size:clamp(2.6rem,6.2vw,5rem);font-weight:500;letter-spacing:-.025em;}
+h2{font-size:clamp(1.9rem,4vw,3rem);}
+h3{font-size:1.5rem;}
+h4{font-size:1.05rem;font-weight:600;letter-spacing:-.01em;}
 p{margin:0 0 1rem;}
-a{color:var(--accent);text-decoration:none;}
-.wrap{width:min(1080px,90vw);margin:0 auto;}
-.eyebrow{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.22em;
-  text-transform:uppercase;color:var(--accent);margin-bottom:1rem;}
+a{color:var(--emerald);text-decoration:none;}
+.wrap{width:min(1180px,92vw);margin:0 auto;}
+.mono{font-family:var(--mono);font-feature-settings:"tnum";}
 .muted{color:var(--muted);}
 
-/* ---- nav ---- */
-.nav{position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(251,251,249,.85);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px;}
-.brand{display:flex;align-items:center;gap:.55rem;font-weight:600;font-size:1rem;
-  letter-spacing:-.01em;color:var(--ink);cursor:pointer;}
-.brand .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);}
-.nav-links{display:flex;gap:1.7rem;list-style:none;margin:0;padding:0;}
-.nav-links a{color:var(--muted);font-size:.85rem;font-weight:500;cursor:pointer;
-  padding-bottom:2px;border-bottom:1.5px solid transparent;transition:color .2s,border-color .2s;}
-.nav-links a:hover{color:var(--ink);}
-.nav-links a.current{color:var(--ink);border-color:var(--accent);}
-.nav-toggle{display:none;background:none;border:0;cursor:pointer;flex-direction:column;gap:5px;padding:6px;}
-.nav-toggle span{width:22px;height:1.5px;background:var(--ink);display:block;}
+/* eyebrow with editorial index */
+.eyebrow{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);font-size:.72rem;
+  font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--gold-deep);margin-bottom:1.3rem;}
+.eyebrow .idx{font-family:var(--mono);color:var(--emerald);}
+.eyebrow::before{content:"";width:30px;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
 
-/* ---- views ---- */
-main{padding-top:62px;}
-.view{display:none;animation:fade .4s ease;}
+/* ---------- NAV ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(244,241,234,.72);
+  backdrop-filter:blur(16px) saturate(140%);border-bottom:1px solid rgba(226,220,207,.7);}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;}
+.brand{display:flex;align-items:center;gap:.6rem;font-family:var(--serif);font-weight:600;font-size:1.15rem;
+  letter-spacing:-.02em;color:var(--ink);cursor:pointer;}
+.brand .crest{width:26px;height:30px;flex:none;}
+.nav-links{display:flex;gap:.4rem;list-style:none;margin:0;padding:0;align-items:center;}
+.nav-links a{color:var(--ink-soft);font-size:.86rem;font-weight:500;cursor:pointer;padding:.5rem .95rem;
+  border-radius:999px;transition:all .25s;position:relative;}
+.nav-links a:hover{color:var(--ink);background:rgba(20,52,42,.05);}
+.nav-links a.current{color:var(--forest-2);background:rgba(194,160,76,.16);box-shadow:inset 0 0 0 1px rgba(194,160,76,.35);}
+.nav-toggle{display:none;background:none;border:0;cursor:pointer;flex-direction:column;gap:5px;padding:8px;}
+.nav-toggle span{width:24px;height:1.6px;background:var(--ink);display:block;border-radius:2px;transition:.3s;}
+
+/* ---------- VIEWS ---------- */
+main{padding-top:72px;}
+.view{display:none;}
 .view.active{display:block;}
-@keyframes fade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
-.sec{padding:72px 0;}
+.sec{padding:88px 0;}
 .sec+.sec{padding-top:0;}
-.sec-head{max-width:64ch;margin-bottom:3rem;}
-.sec-head p{color:var(--muted);font-size:1.05rem;}
-.divider{border:0;border-top:1px solid var(--line);margin:0;}
+.sec-head{max-width:60ch;margin-bottom:3.2rem;}
+.sec-head p{color:var(--muted);font-size:1.12rem;line-height:1.65;}
+.divider{border:0;height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:0;}
 
-/* ---- buttons ---- */
-.btn{display:inline-block;padding:.75rem 1.5rem;border-radius:6px;font-weight:500;
-  font-size:.9rem;cursor:pointer;border:1px solid transparent;transition:background .2s,border-color .2s,color .2s;}
-.btn-fill{background:var(--accent);color:#fff;}
-.btn-fill:hover{background:#43604f;}
-.btn-line{border-color:var(--line-strong);color:var(--ink);}
-.btn-line:hover{border-color:var(--accent);color:var(--accent);}
+/* reveal animation — re-fires each time a view becomes active */
+.reveal{opacity:0;transform:translateY(22px);}
+.view.active .reveal{animation:revealUp .8s cubic-bezier(.2,.75,.2,1) forwards;}
+@keyframes revealUp{to{opacity:1;transform:none;}}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;}.view.active .reveal{animation:none;}}
 
-/* ---- hero ---- */
-.hero{padding:96px 0 56px;}
-.hero .lead{font-size:clamp(1.05rem,1.8vw,1.25rem);color:var(--muted);max-width:60ch;font-weight:400;}
-.hero .meta{margin-top:1.6rem;font-size:.82rem;color:var(--muted);letter-spacing:.02em;}
-.hero .cta{margin-top:2.2rem;display:flex;gap:.7rem;flex-wrap:wrap;}
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;gap:.55rem;padding:.95rem 1.7rem;border-radius:999px;font-weight:600;
+  font-size:.92rem;cursor:pointer;border:1px solid transparent;transition:transform .25s,box-shadow .3s,background .3s,color .3s;}
+.btn .arr{transition:transform .3s;}
+.btn:hover .arr{transform:translateX(4px);}
+.btn-fill{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:var(--forest-2);
+  box-shadow:0 8px 24px -8px rgba(194,160,76,.7),inset 0 1px 0 rgba(255,255,255,.5);}
+.btn-fill:hover{transform:translateY(-2px);box-shadow:0 14px 34px -8px rgba(194,160,76,.85),inset 0 1px 0 rgba(255,255,255,.5);}
+.btn-ghost{border-color:rgba(244,241,234,.35);color:var(--paper);}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold-bright);}
+.btn-line{border-color:var(--line);color:var(--ink);background:var(--surface);}
+.btn-line:hover{border-color:var(--emerald);color:var(--emerald);transform:translateY(-2px);box-shadow:var(--shadow-sm);}
 
-/* ---- cards / grids ---- */
-.grid{display:grid;gap:1.2rem;}
+/* ---------- HERO ---------- */
+.hero{padding:34px 0 64px;}
+.hero-panel{position:relative;overflow:hidden;border-radius:32px;padding:clamp(2.4rem,5vw,4.5rem);color:var(--paper);
+  background:
+    radial-gradient(120% 130% at 12% 8%,rgba(46,124,92,.55),transparent 55%),
+    radial-gradient(120% 120% at 92% 18%,rgba(194,160,76,.32),transparent 50%),
+    radial-gradient(140% 130% at 78% 110%,rgba(12,32,25,.9),transparent 60%),
+    linear-gradient(155deg,#16382C 0%,#0C2019 70%);
+  box-shadow:var(--shadow-lg);}
+.hero-panel::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:26px 26px;}
+.hero-grid{position:relative;z-index:2;display:grid;grid-template-columns:1.25fr .9fr;gap:3rem;align-items:center;}
+.hero .eyebrow{color:var(--gold-bright);}
+.hero .eyebrow::before{background:linear-gradient(90deg,var(--gold-bright),transparent);}
+.hero .eyebrow .idx{color:rgba(244,241,234,.6);}
+.hero h1{color:#fff;}
+.hero h1 .em{font-style:italic;background:linear-gradient(100deg,var(--gold-bright),#EBD8A0);
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero .lead{font-size:clamp(1.05rem,1.6vw,1.25rem);color:rgba(244,241,234,.82);max-width:48ch;margin-top:1.4rem;font-weight:400;}
+.hero .meta{margin-top:1.8rem;font-family:var(--mono);font-size:.76rem;letter-spacing:.06em;
+  color:rgba(244,241,234,.6);text-transform:uppercase;}
+.hero .cta{margin-top:2.4rem;display:flex;gap:.8rem;flex-wrap:wrap;}
+
+/* instrument panel (glass) */
+.instrument{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;
+  padding:1.6rem;backdrop-filter:blur(6px);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);}
+.instrument .label{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-bright);}
+.instrument .rows{display:grid;grid-template-columns:1fr 1fr;gap:1rem 1.2rem;margin:1.1rem 0 1.4rem;}
+.instrument .rows .v{font-family:var(--serif);font-size:1.6rem;color:#fff;font-weight:500;line-height:1;}
+.instrument .rows .k{font-size:.74rem;color:rgba(244,241,234,.6);margin-top:.25rem;}
+.collar-svg{width:100%;height:auto;display:block;}
+
+/* hero ticker */
+.ticker{position:relative;z-index:2;margin-top:2.6rem;border-top:1px solid rgba(255,255,255,.12);padding-top:1.2rem;
+  overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);}
+.ticker-track{display:inline-flex;gap:2.6rem;white-space:nowrap;animation:scroll 34s linear infinite;}
+.ticker:hover .ticker-track{animation-play-state:paused;}
+.ticker span{font-family:var(--mono);font-size:.8rem;color:rgba(244,241,234,.78);letter-spacing:.04em;}
+.ticker b{color:var(--gold-bright);}
+@keyframes scroll{to{transform:translateX(-50%);}}
+
+/* ---------- CARDS / GRIDS ---------- */
+.grid{display:grid;gap:1.4rem;}
 .g4{grid-template-columns:repeat(4,1fr);}
 .g3{grid-template-columns:repeat(3,1fr);}
 .g2{grid-template-columns:repeat(2,1fr);}
-.auto{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.5rem;
-  transition:border-color .2s;}
-.card:hover{border-color:var(--line-strong);}
-.card h4{font-size:.95rem;font-weight:600;margin-bottom:.4rem;}
-.card p{font-size:.88rem;color:var(--muted);margin:0;}
-.card .ico{font-size:1.3rem;opacity:.85;}
-.card .stat{font-size:2rem;font-weight:600;letter-spacing:-.02em;margin:.3rem 0 .2rem;}
-.card .stat small{font-size:.85rem;color:var(--muted);font-weight:400;}
-.card .tag{display:inline-block;margin-top:.8rem;font-size:.68rem;font-weight:600;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--accent);}
-.card.lead-accent{border-left:2px solid var(--accent);}
-.card.lead-neg{border-left:2px solid var(--neg);}
+.auto{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1.7rem;
+  box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s,border-color .3s;position:relative;overflow:hidden;}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:var(--line);}
+.card h4{margin-bottom:.5rem;}
+.card p{font-size:.9rem;color:var(--muted);margin:0;}
+.card .ico{display:inline-flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:11px;
+  background:linear-gradient(160deg,rgba(46,124,92,.14),rgba(194,160,76,.16));color:var(--emerald);font-size:1.2rem;margin-bottom:1rem;}
+.card .tag{display:inline-block;margin-top:1rem;font-family:var(--mono);font-size:.66rem;font-weight:500;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--gold-deep);}
+.card.lead-accent::before,.card.lead-neg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;}
+.card.lead-accent::before{background:linear-gradient(var(--emerald),var(--emerald-bright));}
+.card.lead-neg::before{background:linear-gradient(var(--neg),#c97a6e);}
 
-/* ---- callout ---- */
-.callout{background:var(--accent-soft);border:1px solid #DCE5E0;border-radius:10px;padding:1.6rem 1.8rem;}
-.callout h4{color:var(--accent);font-size:1rem;}
-.callout p{margin:0;font-size:.92rem;color:var(--ink);}
+/* KPI stat cards */
+.kpi .stat{font-family:var(--serif);font-size:2.9rem;font-weight:500;letter-spacing:-.03em;line-height:1;margin:.2rem 0 .4rem;
+  background:linear-gradient(160deg,var(--forest),var(--emerald-bright));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.kpi .stat .u{font-family:var(--mono);font-size:.8rem;color:var(--muted);-webkit-text-fill-color:var(--muted);letter-spacing:0;}
+.kpi h4{font-family:var(--sans);font-size:.82rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;}
 
-/* ---- charts ---- */
-.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem;}
-.chart-box h4{font-size:1rem;font-weight:600;}
-.chart{width:100%;min-height:320px;}
-.chart-note{font-size:.82rem;color:var(--muted);margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--line);}
+/* callout */
+.callout{position:relative;overflow:hidden;border-radius:var(--r);padding:2rem 2.2rem;color:var(--paper);
+  background:radial-gradient(120% 140% at 90% 0%,rgba(194,160,76,.28),transparent 55%),linear-gradient(150deg,#173B2E,#0C2019);
+  box-shadow:var(--shadow);}
+.callout .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-bright);}
+.callout h4{color:#fff;font-size:1.5rem;margin:.5rem 0 .8rem;}
+.callout p{margin:0;color:rgba(244,241,234,.86);font-size:.98rem;}
+
+/* ---------- CHARTS ---------- */
+.chart-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1.7rem;box-shadow:var(--shadow-sm);transition:box-shadow .3s;}
+.chart-box:hover{box-shadow:var(--shadow);}
+.chart-box h4{display:flex;align-items:center;gap:.6rem;}
+.chart-box h4::before{content:"";width:8px;height:8px;border-radius:50%;background:linear-gradient(var(--gold-bright),var(--gold));}
+.chart{width:100%;min-height:330px;}
+.chart-note{font-size:.84rem;color:var(--muted);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line-soft);}
 .chart-note b{color:var(--ink);font-weight:600;}
-.chart-note i{display:block;margin-top:.3rem;font-size:.76rem;opacity:.8;}
+.chart-note i{display:block;margin-top:.35rem;font-family:var(--mono);font-size:.72rem;opacity:.75;font-style:normal;}
 
-/* ---- tables ---- */
-.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);}
-table.data{width:100%;border-collapse:collapse;font-size:.88rem;min-width:520px;}
-table.data th{text-align:left;font-weight:600;font-size:.74rem;letter-spacing:.04em;text-transform:uppercase;
-  color:var(--muted);padding:.9rem 1rem;border-bottom:1px solid var(--line-strong);}
-table.data td{padding:.75rem 1rem;border-bottom:1px solid var(--line);}
+/* ---------- TABLES ---------- */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-sm);}
+table.data{width:100%;border-collapse:collapse;font-size:.9rem;min-width:540px;}
+table.data th{text-align:left;font-family:var(--mono);font-weight:500;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);padding:1rem;border-bottom:1px solid var(--line);background:var(--paper-2);}
+table.data td{padding:.85rem 1rem;border-bottom:1px solid var(--line-soft);}
+table.data td:nth-child(n+2){font-family:var(--mono);font-feature-settings:"tnum";}
 table.data tr:last-child td{border-bottom:0;}
-table.data tr.hl td{background:var(--accent-soft);}
+table.data tbody tr{transition:background .2s;}
+table.data tbody tr:hover td{background:var(--paper);}
+table.data tr.hl td{background:rgba(194,160,76,.12);font-weight:600;}
 table.data td.pos{color:var(--pos);font-weight:600;}
 table.data td.neg{color:var(--neg);font-weight:600;}
-.caption{font-size:.8rem;color:var(--muted);margin-top:.8rem;}
+.caption{font-size:.82rem;color:var(--muted);margin-top:.9rem;}
 
-/* ---- scenarios ---- */
-.scenario{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.5rem;border-top:2px solid var(--line-strong);}
-.scenario.bull{border-top-color:var(--pos);}
-.scenario.base{border-top-color:var(--accent);}
-.scenario.bear{border-top-color:var(--neg);}
-.scenario .prob{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
-.scenario .rate{font-size:2.4rem;font-weight:600;letter-spacing:-.02em;margin:.2rem 0;}
-.scenario h4{font-size:.98rem;margin:.1rem 0 .6rem;}
-.scenario p{font-size:.84rem;color:var(--muted);margin:0 0 .5rem;}
-.scenario .src{font-size:.74rem;color:var(--muted);opacity:.75;}
+/* ---------- SCENARIOS ---------- */
+.scenario{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1.8rem;
+  box-shadow:var(--shadow-sm);transition:transform .3s,box-shadow .3s;overflow:hidden;}
+.scenario:hover{transform:translateY(-5px);box-shadow:var(--shadow);}
+.scenario::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;}
+.scenario.bull::before{background:linear-gradient(90deg,var(--emerald),var(--emerald-bright));}
+.scenario.base::before{background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));}
+.scenario.bear::before{background:linear-gradient(90deg,var(--neg),#c97a6e);}
+.scenario .prob{font-family:var(--mono);font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.scenario .rate{font-family:var(--serif);font-size:3rem;font-weight:500;letter-spacing:-.03em;margin:.3rem 0;line-height:1;}
+.scenario.bull .rate{color:var(--emerald);}.scenario.base .rate{color:var(--gold-deep);}.scenario.bear .rate{color:var(--neg);}
+.scenario h4{margin:.2rem 0 .7rem;}
+.scenario p{font-size:.86rem;color:var(--muted);margin:0 0 .6rem;}
+.scenario .src{font-family:var(--mono);font-size:.7rem;color:var(--muted);opacity:.7;}
 
-/* ---- steps ---- */
-.step{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1.4rem;}
-.step .n{font-size:.78rem;font-weight:600;color:var(--accent);letter-spacing:.1em;}
-.step h4{font-size:.98rem;margin:.5rem 0 .3rem;}
-.step p{font-size:.86rem;color:var(--muted);margin:0;}
+/* ---------- STEPS ---------- */
+.step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:1.7rem;box-shadow:var(--shadow-sm);}
+.step .n{font-family:var(--serif);font-size:2.6rem;font-weight:500;line-height:1;
+  background:linear-gradient(160deg,var(--gold-bright),var(--gold-deep));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.step h4{margin:.6rem 0 .35rem;}
+.step p{font-size:.88rem;color:var(--muted);margin:0;}
 
-/* ---- widget ---- */
-.widget{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:1.6rem;}
-.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem 1.5rem;margin-bottom:1.4rem;}
-.control label{font-size:.78rem;font-weight:600;color:var(--ink);margin-bottom:.45rem;
-  display:flex;justify-content:space-between;}
-.control label .val{color:var(--accent);}
-.control input[type=range]{width:100%;accent-color:var(--accent);}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:.9rem;margin:1.2rem 0;}
-.metric{border:1px solid var(--line);border-radius:8px;padding:.85rem 1rem;}
-.metric .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
-.metric .v{font-size:1.15rem;font-weight:600;margin-top:.2rem;}
+/* ---------- WIDGET ---------- */
+.widget{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:2rem;box-shadow:var(--shadow);}
+.controls{display:grid;grid-template-columns:repeat(2,1fr);gap:1.3rem 1.8rem;margin-bottom:1.6rem;}
+.control label{font-size:.8rem;font-weight:600;color:var(--ink);margin-bottom:.6rem;display:flex;justify-content:space-between;}
+.control label .val{font-family:var(--mono);color:var(--gold-deep);}
+.control input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:6px;border-radius:6px;
+  background:linear-gradient(90deg,var(--emerald),var(--gold));outline:none;}
+.control input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;
+  background:#fff;border:2px solid var(--emerald);box-shadow:0 2px 8px rgba(20,52,42,.3);cursor:pointer;transition:transform .15s;}
+.control input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+.control input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:#fff;border:2px solid var(--emerald);cursor:pointer;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin:1.4rem 0;}
+.metric{border:1px solid var(--line);border-radius:12px;padding:1rem 1.1rem;background:var(--paper);}
+.metric .k{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+.metric .v{font-family:var(--serif);font-size:1.5rem;font-weight:500;margin-top:.25rem;color:var(--forest);}
 
-/* ---- recommendation ---- */
-.brief{background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);
-  border-radius:10px;padding:2.2rem;}
-.brief .hl{color:var(--accent);font-weight:600;}
-.brief ul{padding-left:1.1rem;margin:1rem 0;}
-.brief li{margin-bottom:.5rem;font-size:.95rem;}
-.brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:1.4rem 0;}
-.brief-grid .item{border:1px solid var(--line);border-radius:8px;padding:1rem;}
-.brief-grid .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
-.brief-grid .v{font-weight:600;font-size:1.05rem;margin-top:.2rem;}
+/* ---------- RECOMMENDATION ---------- */
+.brief{position:relative;overflow:hidden;border-radius:22px;padding:2.6rem;color:var(--paper);
+  background:radial-gradient(120% 130% at 88% 5%,rgba(194,160,76,.28),transparent 55%),linear-gradient(150deg,#173B2E,#0C2019);
+  box-shadow:var(--shadow-lg);}
+.brief::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:26px 26px;}
+.brief>*{position:relative;z-index:2;}
+.brief p,.brief li{color:rgba(244,241,234,.88);}
+.brief .hl{color:var(--gold-bright);font-weight:600;}
+.brief ul{padding-left:1.1rem;margin:1.2rem 0;}
+.brief li{margin-bottom:.55rem;font-size:.96rem;}
+.brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:1.6rem 0;}
+.brief-grid .item{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:1.1rem;}
+.brief-grid .k{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-bright);}
+.brief-grid .v{font-family:var(--serif);font-weight:500;font-size:1.3rem;margin-top:.3rem;color:#fff;}
 
-/* ---- references ---- */
-.refs{columns:2;column-gap:2.4rem;font-size:.84rem;color:var(--muted);padding-left:1.1rem;}
-.refs li{margin-bottom:.6rem;break-inside:avoid;}
+/* ---------- REFERENCES ---------- */
+.refs{columns:2;column-gap:2.6rem;font-size:.85rem;color:var(--muted);padding-left:1.1rem;}
+.refs li{margin-bottom:.65rem;break-inside:avoid;}
 .refs b{color:var(--ink);font-weight:600;}
 
-/* ---- footer ---- */
-footer{border-top:1px solid var(--line);padding:40px 0;margin-top:40px;}
-footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2rem;}
-footer h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;}
-footer p,footer li{font-size:.84rem;color:var(--muted);}
+/* ---------- FOOTER ---------- */
+footer{background:linear-gradient(150deg,#16382C,#0C2019);color:var(--paper);margin-top:80px;padding:64px 0 36px;}
+footer .cols{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:2.4rem;}
+footer h4{font-family:var(--mono);font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:var(--gold-bright);font-weight:500;}
+footer p,footer li{font-size:.86rem;color:rgba(244,241,234,.72);}
 footer ul{list-style:none;padding:0;margin:0;}
-footer li{margin-bottom:.3rem;}
-footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line);font-size:.76rem;color:var(--muted);opacity:.8;}
+footer li{margin-bottom:.35rem;}
+footer .brand-f{font-family:var(--serif);font-size:1.4rem;color:#fff;margin-bottom:.6rem;}
+footer .legal{margin-top:2.4rem;padding-top:1.4rem;border-top:1px solid rgba(244,241,234,.14);font-size:.76rem;color:rgba(244,241,234,.5);}
 
-/* ---- responsive ---- */
-@media(max-width:860px){
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:2rem;}
+  .g4{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:780px){
   .g4,.g3,.g2{grid-template-columns:1fr;}
   .metrics{grid-template-columns:repeat(2,1fr);}
   .controls{grid-template-columns:1fr;}
   .refs{columns:1;}
   footer .cols{grid-template-columns:1fr;}
   .nav-toggle{display:flex;}
-  .nav-links{position:absolute;top:62px;left:0;right:0;flex-direction:column;background:var(--bg);
-    padding:1rem 5vw;gap:1.1rem;display:none;border-bottom:1px solid var(--line);}
+  .nav-links{position:absolute;top:72px;left:0;right:0;flex-direction:column;align-items:stretch;
+    background:var(--paper);padding:1rem 5vw 1.4rem;gap:.4rem;display:none;border-bottom:1px solid var(--line);box-shadow:var(--shadow);}
   .nav-links.open{display:flex;}
+  .nav-links a{padding:.8rem 1rem;}
+  .hero-panel{border-radius:24px;}
 }
 </style>
 </head>
@@ -194,7 +292,10 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <!-- ===================== NAV / MENU ===================== -->
 <nav class="nav">
   <div class="wrap">
-    <div class="brand" data-target="home"><span class="dot"></span>Shield Consulting</div>
+    <div class="brand" data-target="home">
+      <svg class="crest" viewBox="0 0 26 30" fill="none"><path d="M13 1l11 4v9c0 7-5 12-11 15C7 26 2 21 2 14V5l11-4z" fill="#14342A"/><path d="M13 6l6 2.2V14c0 4.2-3 7-6 8.6C10 21 7 18.2 7 14V8.2L13 6z" fill="#C2A04C"/></svg>
+      Shield Consulting
+    </div>
     <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
     <ul class="nav-links">
       <li><a data-target="home">Home</a></li>
@@ -210,39 +311,75 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <!-- ===================== HOME ===================== -->
 <section class="view active" id="home">
   <div class="wrap hero">
-    <span class="eyebrow">International Financial Management · Group 334</span>
-    <h1>Arauco México<br>Macroeconomic Risk &amp; FX Hedging</h1>
-    <p class="lead">An analysis of Arauco México's exposure to macroeconomic conditions and USD/MXN movements,
-      focused on its purchase of imported raw materials — <strong>urea and methanol</strong> — and a combined
-      derivatives strategy to manage that risk.</p>
-    <div class="meta">6-month horizon · Urea + Methanol · $14.82M USD notional · Spot 17.25 (May 2026)</div>
-    <div class="cta">
-      <span class="btn btn-fill" data-target="hedging">View the hedging strategy</span>
-      <span class="btn btn-line" data-target="macro">Explore the data</span>
+    <div class="hero-panel">
+      <div class="hero-grid">
+        <div class="reveal">
+          <span class="eyebrow"><span class="idx">00</span> International Financial Management · Group 334</span>
+          <h1>Arauco México<br><span class="em">FX Risk</span> &amp; Hedging</h1>
+          <p class="lead">An analysis of Arauco México's exposure to macroeconomic conditions and USD/MXN movements —
+            focused on its imported raw materials, <strong>urea and methanol</strong> — and a combined derivatives
+            strategy to manage that risk.</p>
+          <div class="meta">6-month horizon · Urea + Methanol · $14.82M notional · Spot 17.25</div>
+          <div class="cta">
+            <span class="btn btn-fill" data-target="hedging">View the hedging strategy <span class="arr">→</span></span>
+            <span class="btn btn-ghost" data-target="macro">Explore the data</span>
+          </div>
+        </div>
+        <div class="instrument reveal">
+          <div class="label">Recommended structure</div>
+          <div class="rows">
+            <div><div class="v mono">17.25</div><div class="k">USD/MXN spot</div></div>
+            <div><div class="v mono">$14.82M</div><div class="k">6-month notional</div></div>
+            <div><div class="v mono">16.85</div><div class="k">Collar floor</div></div>
+            <div><div class="v mono">18.00</div><div class="k">Collar cap</div></div>
+          </div>
+          <svg class="collar-svg" viewBox="0 0 320 120" fill="none">
+            <defs><linearGradient id="cl" x1="0" y1="0" x2="320" y2="0">
+              <stop offset="0" stop-color="#C2A04C"/><stop offset="1" stop-color="#D8B968"/></linearGradient></defs>
+            <line x1="0" y1="60" x2="320" y2="60" stroke="rgba(255,255,255,.15)" stroke-dasharray="3 4"/>
+            <path d="M10 95 L120 95 L210 25 L310 25" stroke="url(#cl)" stroke-width="3" fill="none" stroke-linejoin="round" stroke-linecap="round"/>
+            <line x1="120" y1="10" x2="120" y2="110" stroke="rgba(46,124,92,.55)" stroke-dasharray="2 4"/>
+            <line x1="210" y1="10" x2="210" y2="110" stroke="rgba(46,124,92,.55)" stroke-dasharray="2 4"/>
+            <circle cx="120" cy="95" r="4" fill="#D8B968"/><circle cx="210" cy="25" r="4" fill="#D8B968"/>
+            <text x="120" y="118" fill="rgba(244,241,234,.55)" font-family="monospace" font-size="9" text-anchor="middle">floor 16.85</text>
+            <text x="210" y="118" fill="rgba(244,241,234,.55)" font-family="monospace" font-size="9" text-anchor="middle">cap 18.00</text>
+          </svg>
+        </div>
+      </div>
+      <div class="ticker">
+        <div class="ticker-track">
+          <span>USD/MXN <b>17.25</b></span><span>Banxico <b>6.50%</b></span><span>Fed <b>3.625%</b></span>
+          <span>Rate diff <b>+287 bps</b></span><span>6m forward <b>17.515</b></span><span>Urea <b>$700/t</b></span>
+          <span>Methanol <b>$370/t</b></span><span>MX CPI <b>4.45%</b></span><span>US CPI <b>3.8%</b></span>
+          <span>USD/MXN <b>17.25</b></span><span>Banxico <b>6.50%</b></span><span>Fed <b>3.625%</b></span>
+          <span>Rate diff <b>+287 bps</b></span><span>6m forward <b>17.515</b></span><span>Urea <b>$700/t</b></span>
+          <span>Methanol <b>$370/t</b></span><span>MX CPI <b>4.45%</b></span><span>US CPI <b>3.8%</b></span>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="wrap sec" style="padding-top:0">
     <div class="grid g4">
-      <div class="card"><div class="ico">◷</div><h4>Macroeconomic environment</h4><p>Weak GDP, sticky inflation and a fragile super-peso going into the USMCA review.</p></div>
-      <div class="card"><div class="ico">⇄</div><h4>FX exposure</h4><p>Net USD payable: a weaker peso raises the MXN cost of dollar-priced inputs.</p></div>
-      <div class="card"><div class="ico">◰</div><h4>Raw material purchases</h4><p>3,000 t/mo urea + 1,000 t/mo methanol for the Masnova resin &amp; formalin plant.</p></div>
-      <div class="card"><div class="ico">◇</div><h4>Hedging strategy</h4><p>A low-cost collar combining a long USD call and a short USD put.</p></div>
+      <div class="card reveal"><span class="ico">◷</span><h4>Macroeconomic environment</h4><p>Weak GDP, sticky inflation and a fragile super-peso going into the USMCA review.</p></div>
+      <div class="card reveal"><span class="ico">⇄</span><h4>FX exposure</h4><p>Net USD payable: a weaker peso raises the MXN cost of dollar-priced inputs.</p></div>
+      <div class="card reveal"><span class="ico">◰</span><h4>Raw material purchases</h4><p>3,000 t/mo urea + 1,000 t/mo methanol for the Masnova resin &amp; formalin plant.</p></div>
+      <div class="card reveal"><span class="ico">◇</span><h4>Hedging strategy</h4><p>A low-cost collar combining a long USD call and a short USD put.</p></div>
     </div>
   </div>
 
   <div class="wrap sec" style="padding-top:0">
-    <div class="sec-head" style="margin-bottom:1.6rem">
-      <span class="eyebrow">At a glance</span>
+    <div class="sec-head reveal" style="margin-bottom:2rem">
+      <span class="eyebrow"><span class="idx">·</span> At a glance</span>
       <h2>The picture in mid-2026</h2>
-      <p>Arauco México operates inside a structurally weakening economy yet faces a structurally strong peso —
-        with the USMCA review (July 1, 2026) as the dominant binary risk.</p>
+      <p>A structurally weakening economy alongside a structurally strong peso — with the USMCA review (July 1, 2026)
+        as the dominant binary risk.</p>
     </div>
     <div class="grid g4">
-      <div class="card"><h4>GDP contraction</h4><div class="stat">−0.8%<small> QoQ Q1'26</small></div><p>Worst Q1 since 2020; fixed investment down 17 straight months.</p><span class="tag">Demand risk</span></div>
-      <div class="card"><h4>Rate differential</h4><div class="stat">+287<small> bps</small></div><p>Banxico 6.50% vs Fed 3.625% — the carry trade holds the peso up.</p><span class="tag">FX driver</span></div>
-      <div class="card"><h4>Inflation gap</h4><div class="stat">+0.65<small> pp</small></div><p>Mexico 4.45% vs US 3.8%; expected to widen by year-end.</p><span class="tag">PPP pressure</span></div>
-      <div class="card"><h4>USD/MXN spot</h4><div class="stat">17.25</div><p>Near multi-year lows; consensus 18.0–19.2 for end-2026.</p><span class="tag">Exposure base</span></div>
+      <div class="card kpi reveal"><h4>GDP contraction</h4><div class="stat" data-count="0.8" data-decimals="1" data-prefix="−" data-suffix="%">−0.8%</div><p>Worst Q1 since 2020; fixed investment down 17 straight months.</p><span class="tag">Demand risk</span></div>
+      <div class="card kpi reveal"><h4>Rate differential</h4><div class="stat" data-count="287" data-prefix="+" data-usuffix=" bps"><span class="num">+287</span><span class="u"> bps</span></div><p>Banxico 6.50% vs Fed 3.625% — the carry trade holds the peso up.</p><span class="tag">FX driver</span></div>
+      <div class="card kpi reveal"><h4>Inflation gap</h4><div class="stat" data-count="0.65" data-decimals="2" data-prefix="+" data-usuffix=" pp"><span class="num">+0.65</span><span class="u"> pp</span></div><p>Mexico 4.45% vs US 3.8%; expected to widen by year-end.</p><span class="tag">PPP pressure</span></div>
+      <div class="card kpi reveal"><h4>USD/MXN spot</h4><div class="stat" data-count="17.25" data-decimals="2">17.25</div><p>Near multi-year lows; consensus 18.0–19.2 for end-2026.</p><span class="tag">Exposure base</span></div>
     </div>
   </div>
 </section>
@@ -250,59 +387,58 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <!-- ===================== MACROECONOMIC VARIABLES ===================== -->
 <section class="view" id="macro">
   <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Macroeconomic Variables</span>
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="idx">01</span> Macroeconomic Variables</span>
       <h2>How the macro variables affect Arauco</h2>
       <p>Five indicators shape the FX outlook. Each is summarized with its recent trend and the concrete business
         impact for Arauco México, followed by interactive charts.</p>
     </div>
-
     <div class="grid auto">
-      <div class="card"><h4>Inflation differential</h4><p><b>Measures:</b> Mexico vs US CPI — a PPP anchor.<br><b>Trend:</b> Mexico eased to 4.45% (Apr); US rose to 3.8%. Gap ≈ +0.65 pp.<br><b>Impact:</b> Local costs rise faster than USD inputs, eroding the natural hedge.</p></div>
-      <div class="card"><h4>Interest rate differential</h4><p><b>Measures:</b> Banxico vs Fed — the carry-trade engine.<br><b>Trend:</b> Banxico 6.50% (easing over); Fed 3.50–3.75%. ≈ +287 bps.<br><b>Impact:</b> Props the peso up but is fragile; any unwind raises Arauco's cost of dollars.</p></div>
-      <div class="card"><h4>GDP growth</h4><p><b>Measures:</b> Relative growth — a capital-flow driver.<br><b>Trend:</b> Mexico −0.8% QoQ vs US +2.0% annualized.<br><b>Impact:</b> Weak demand hits panel sales (~60% of revenue); US strength supports the Alacrán thesis.</p></div>
-      <div class="card"><h4>Construction sector</h4><p><b>Measures:</b> The most direct wood-panel demand gauge.<br><b>Trend:</b> −0.8% YoY (Feb) but five months of gains; +2.5% forecast 2026.<br><b>Impact:</b> Contraction compresses MDF/PB/melamine demand.</p></div>
-      <div class="card"><h4>Trade balance &amp; remittances</h4><p><b>Measures:</b> The two largest USD inflows (~$700B/yr).<br><b>Trend:</b> Surplus +$5.9B (Mar); remittances record but −18.7% in real MXN.<br><b>Impact:</b> A USMCA shock would remove peso support, pushing USD/MXN higher.</p></div>
-      <div class="card"><h4>USMCA review &amp; energy</h4><p><b>Measures:</b> Structural / event risk.<br><b>Trend:</b> Review opens July 1; Strait-of-Hormuz disruption lifts energy and urea prices.<br><b>Impact:</b> Binary peso risk plus a direct cost shock to urea.</p></div>
+      <div class="card reveal"><h4>Inflation differential</h4><p><b>Measures:</b> Mexico vs US CPI — a PPP anchor.<br><b>Trend:</b> Mexico eased to 4.45% (Apr); US rose to 3.8%. Gap ≈ +0.65 pp.<br><b>Impact:</b> Local costs rise faster than USD inputs, eroding the natural hedge.</p></div>
+      <div class="card reveal"><h4>Interest rate differential</h4><p><b>Measures:</b> Banxico vs Fed — the carry-trade engine.<br><b>Trend:</b> Banxico 6.50% (easing over); Fed 3.50–3.75%. ≈ +287 bps.<br><b>Impact:</b> Props the peso up but is fragile; any unwind raises Arauco's cost of dollars.</p></div>
+      <div class="card reveal"><h4>GDP growth</h4><p><b>Measures:</b> Relative growth — a capital-flow driver.<br><b>Trend:</b> Mexico −0.8% QoQ vs US +2.0% annualized.<br><b>Impact:</b> Weak demand hits panel sales (~60% of revenue); US strength supports the Alacrán thesis.</p></div>
+      <div class="card reveal"><h4>Construction sector</h4><p><b>Measures:</b> The most direct wood-panel demand gauge.<br><b>Trend:</b> −0.8% YoY (Feb) but five months of gains; +2.5% forecast 2026.<br><b>Impact:</b> Contraction compresses MDF/PB/melamine demand.</p></div>
+      <div class="card reveal"><h4>Trade balance &amp; remittances</h4><p><b>Measures:</b> The two largest USD inflows (~$700B/yr).<br><b>Trend:</b> Surplus +$5.9B (Mar); remittances record but −18.7% in real MXN.<br><b>Impact:</b> A USMCA shock would remove peso support, pushing USD/MXN higher.</p></div>
+      <div class="card reveal"><h4>USMCA review &amp; energy</h4><p><b>Measures:</b> Structural / event risk.<br><b>Trend:</b> Review opens July 1; Strait-of-Hormuz disruption lifts energy and urea prices.<br><b>Impact:</b> Binary peso risk plus a direct cost shock to urea.</p></div>
     </div>
   </div>
 
   <hr class="divider">
 
   <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Data Visualization</span>
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="idx">·</span> Data Visualization</span>
       <h2>The numbers behind the analysis</h2>
       <p>Forecast bars use the midpoint of each published range; hover any bar for the exact value.</p>
     </div>
     <div class="grid g2">
-      <div class="chart-box">
+      <div class="chart-box reveal">
         <h4>Inflation: Mexico vs United States</h4>
         <div id="chart-inflation" class="chart"></div>
         <p class="chart-note"><b>Reading:</b> Both economies sit above target. The +0.65 pp gap is narrow today but is
           expected to widen, modestly increasing peso-depreciation pressure.
-          <i>Source: INEGI &amp; BLS, April 2026; Banxico / Fed forecasts.</i></p>
+          <i>INEGI &amp; BLS, April 2026; Banxico / Fed forecasts.</i></p>
       </div>
-      <div class="chart-box">
+      <div class="chart-box reveal">
         <h4>Policy rates: Banxico vs Federal Reserve</h4>
         <div id="chart-rates" class="chart"></div>
         <p class="chart-note"><b>Reading:</b> The ~287 bps differential is the single most important USD/MXN driver.
           Gradual convergence is the key FX risk for late 2026.
-          <i>Source: Banxico (May 7, 2026); FOMC (Apr 29, 2026).</i></p>
+          <i>Banxico (May 7, 2026); FOMC (Apr 29, 2026).</i></p>
       </div>
-      <div class="chart-box">
+      <div class="chart-box reveal">
         <h4>GDP growth: Mexico vs United States</h4>
         <div id="chart-gdp" class="chart"></div>
         <p class="chart-note"><b>Reading:</b> A widening US–Mexico growth gap signals weaker peso fundamentals and
           reinforces the logic of exporting north under the Alacrán Project.
-          <i>Source: INEGI &amp; BEA Q1 2026; consensus forecasts.</i></p>
+          <i>INEGI &amp; BEA Q1 2026; consensus forecasts.</i></p>
       </div>
-      <div class="chart-box">
+      <div class="chart-box reveal">
         <h4>USD/MXN end-2026 forecasts by source</h4>
         <div id="chart-fx" class="chart"></div>
         <p class="chart-note"><b>Reading:</b> Independent forecasts cluster between 18.0 and 19.2 — a clear depreciation
           bias versus the 17.25 spot. The dotted line marks today's spot.
-          <i>Source: Banxico Encuesta, Citi, BBVA, Banorte/Hacienda, Vanguard/Banco Base.</i></p>
+          <i>Banxico Encuesta, Citi, BBVA, Banorte/Hacienda, Vanguard/Banco Base.</i></p>
       </div>
     </div>
   </div>
@@ -311,15 +447,16 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <!-- ===================== RISKS ===================== -->
 <section class="view" id="risks">
   <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">Risks &amp; Structural Environment</span>
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="idx">02</span> Risks &amp; Structural Environment</span>
       <h2>What can move the peso against Arauco</h2>
       <p>Beyond the cyclical indicators, a set of structural and event-driven factors define Arauco México's FX risk.
         These are the forces the hedging strategy is built to withstand.</p>
     </div>
 
-    <div class="callout" style="margin-bottom:2.4rem">
-      <h4>Dominant event risk · USMCA review (begins July 1, 2026)</h4>
+    <div class="callout reveal" style="margin-bottom:2.6rem">
+      <div class="label">Dominant event risk</div>
+      <h4>USMCA review — begins July 1, 2026</h4>
       <p>The formal review can confirm continuation to 2042 or revise the agreement. Three paths: a clean renewal
         (peso strengthens on relief), an imperfect renewal (range-bound volatility), or a failed review that turns
         into serial annual reviews — which analysts estimate could depreciate the peso <b>5–15%</b>. Because the
@@ -327,16 +464,16 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         event for Arauco's 2026 FX exposure, and it calls for asymmetric, option-based protection.</p>
     </div>
 
-    <h3>Main risks for Arauco México</h3>
-    <div class="grid g2" style="margin-bottom:2.6rem">
+    <h3 class="reveal">Main risks for Arauco México</h3>
+    <div class="grid g2 reveal" style="margin-bottom:2.8rem">
       <div class="card lead-neg"><h4>Carry-trade unwind</h4><p>A BoJ hike, a Fed pause, or a trade shock could trigger a sharp, asymmetric USD/MXN spike — the tail the hedge must cover.</p></div>
       <div class="card lead-neg"><h4>Sovereign downgrade</h4><p>S&amp;P cut Mexico's outlook to negative (May 13, 2026) on slow fiscal consolidation. A downgrade would force bond outflows and pressure the peso.</p></div>
       <div class="card lead-accent"><h4>Sticky inflation + weak growth</h4><p>A stagflationary undertone is structurally bearish for the peso medium-term, even while the carry trade masks it short-term.</p></div>
       <div class="card lead-accent"><h4>Shifting exposure profile</h4><p>The Alacrán Project raises USD revenue exposure, eroding the old natural hedge and making active hedging more important, not less.</p></div>
     </div>
 
-    <h3>Policy &amp; structural backdrop</h3>
-    <div class="grid auto">
+    <h3 class="reveal">Policy &amp; structural backdrop</h3>
+    <div class="grid auto reveal">
       <div class="card"><h4>Monetary policy</h4><p>The wide ~287 bps rate gap favors the peso near-term but is fragile. Banxico signalled its easing cycle is over; any combination of further cuts or a Fed pause could shift USD/MXN sharply.</p></div>
       <div class="card"><h4>Fiscal policy</h4><p>The 2026 budget runs a 4.1% deficit with PEMEX support and welfare rigidity. Fiscal pressure is the primary medium-term peso risk and underlies the S&amp;P outlook cut.</p></div>
       <div class="card"><h4>Socio-political</h4><p>Sheinbaum manages inherited fiscal stress, the judicial reform, and U.S. tariff pressure via "quiet diplomacy"; Trump's trade posture keeps cross-border investment economics uncertain.</p></div>
@@ -350,19 +487,19 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <!-- ===================== HEDGING STRATEGY ===================== -->
 <section class="view" id="hedging">
   <div class="wrap sec">
-    <div class="sec-head">
-      <span class="eyebrow">FX Hedging Strategy</span>
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="idx">03</span> FX Hedging Strategy</span>
       <h2>A combined derivatives approach</h2>
       <p>We recommend a <b>low-cost collar</b> — a long USD call (cap 18.00) funded by a short USD put (floor 16.85) —
         to hedge Arauco's six-month urea and methanol exposure. Net cost: <b>MXN 1.16M (0.45% of notional)</b>;
         maximum protection in a bearish-peso crisis: <b>MXN 29.6M</b>.</p>
     </div>
 
-    <h3>Context &amp; FX exposure</h3>
-    <p class="muted">Arauco buys urea and methanol — both priced in USD — as inputs to resin and formalin production,
+    <h3 class="reveal">Context &amp; FX exposure</h3>
+    <p class="muted reveal">Arauco buys urea and methanol — both priced in USD — as inputs to resin and formalin production,
       while its revenue is predominantly MXN. This is a net USD payable exposure: <b>when the peso weakens, the MXN
       cost of the same purchase rises</b>.</p>
-    <div class="table-scroll">
+    <div class="table-scroll reveal">
       <table class="data">
         <thead><tr><th>Raw material</th><th>Volume / month</th><th>Price / ton</th><th>Monthly USD</th><th>Source</th></tr></thead>
         <tbody>
@@ -374,34 +511,34 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         </tbody>
       </table>
     </div>
-    <p class="caption">Urea prices rose ~81% YoY in 2026 on Strait-of-Hormuz disruption, nearly doubling the USD exposure and strengthening the case for hedging.</p>
+    <p class="caption reveal">Urea prices rose ~81% YoY in 2026 on Strait-of-Hormuz disruption, nearly doubling the USD exposure and strengthening the case for hedging.</p>
 
-    <h3 style="margin-top:3rem">FX rate expectation — three scenarios</h3>
-    <p class="muted">Forecasts from six independent sources collapse into three scenarios. Approximate probability weights: 25 / 50 / 25.</p>
-    <div class="grid g3">
-      <div class="scenario bull"><span class="prob">~25% probability</span><div class="rate">17.00</div><h4>Bullish Peso</h4><p>Carry trade persists, clean USMCA renewal, peso strength continues.</p><p><b>For Arauco:</b> cheapest unhedged outcome; collar gives up upside below the floor.</p><span class="src">Vanguard low end, carry trade</span></div>
-      <div class="scenario base"><span class="prob">~50% probability</span><div class="rate">18.10</div><h4>Base case</h4><p>Gradual depreciation, consistent with the forward and analyst consensus.</p><p><b>For Arauco:</b> sits in the collar's no-action zone — only the small premium cost.</p><span class="src">Citi + BBVA + forward</span></div>
-      <div class="scenario bear"><span class="prob">~25% probability</span><div class="rate">19.50</div><h4>Bearish Peso</h4><p>USMCA breakdown, carry-trade unwind, depreciation to consensus level.</p><p><b>For Arauco:</b> the cap delivers maximum protection — up to MXN 29.6M saved.</p><span class="src">Banxico Encuesta, Hacienda</span></div>
+    <h3 style="margin-top:3.4rem" class="reveal">FX rate expectation — three scenarios</h3>
+    <p class="muted reveal">Forecasts from six independent sources collapse into three scenarios. Approximate probability weights: 25 / 50 / 25.</p>
+    <div class="grid g3 reveal">
+      <div class="scenario bull"><span class="prob">~25% probability</span><div class="rate mono">17.00</div><h4>Bullish Peso</h4><p>Carry trade persists, clean USMCA renewal, peso strength continues.</p><p><b>For Arauco:</b> cheapest unhedged outcome; collar gives up upside below the floor.</p><span class="src">Vanguard low end, carry trade</span></div>
+      <div class="scenario base"><span class="prob">~50% probability</span><div class="rate mono">18.10</div><h4>Base case</h4><p>Gradual depreciation, consistent with the forward and analyst consensus.</p><p><b>For Arauco:</b> sits in the collar's no-action zone — only the small premium cost.</p><span class="src">Citi + BBVA + forward</span></div>
+      <div class="scenario bear"><span class="prob">~25% probability</span><div class="rate mono">19.50</div><h4>Bearish Peso</h4><p>USMCA breakdown, carry-trade unwind, depreciation to consensus level.</p><p><b>For Arauco:</b> the cap delivers maximum protection — up to MXN 29.6M saved.</p><span class="src">Banxico Encuesta, Hacienda</span></div>
     </div>
 
-    <h3 style="margin-top:3rem">Hedging horizon — 6 months</h3>
-    <div class="grid g3">
+    <h3 style="margin-top:3.4rem" class="reveal">Hedging horizon — 6 months</h3>
+    <div class="grid g3 reveal">
       <div class="card"><h4>Procurement cycle</h4><p>Aligns with Arauco's semi-annual industrial procurement planning.</p></div>
       <div class="card"><h4>Event coverage</h4><p>Covers the entire USMCA review window from July 1, 2026 onward.</p></div>
       <div class="card"><h4>Market liquidity</h4><p>The 6-month tenor accesses deeper, more liquid USD/MXN option markets.</p></div>
     </div>
 
-    <h3 style="margin-top:3rem">Strategy design — the collar</h3>
-    <p class="muted">A single forward would lock the rate but forfeit all upside; a naked call protects but drains cash.
+    <h3 style="margin-top:3.4rem" class="reveal">Strategy design — the collar</h3>
+    <p class="muted reveal">A single forward would lock the rate but forfeit all upside; a naked call protects but drains cash.
       The collar combines both legs into one structure with bounded risk in both directions.</p>
-    <div class="grid g3">
-      <div class="step"><div class="n">STEP 1</div><h4>Buy a USD call @ 18.00</h4><p>The protection leg — the right to buy USD at 18.00 if spot rises above it.</p></div>
-      <div class="step"><div class="n">STEP 2</div><h4>Sell a USD put @ 16.85</h4><p>The funding leg — its premium funds most of the call.</p></div>
-      <div class="step"><div class="n">STEP 3</div><h4>Net payoff</h4><p>Protected above 18.00, participating 16.85–18.00, giving up gains below 16.85.</p></div>
+    <div class="grid g3 reveal">
+      <div class="step"><div class="n">1</div><h4>Buy a USD call @ 18.00</h4><p>The protection leg — the right to buy USD at 18.00 if spot rises above it.</p></div>
+      <div class="step"><div class="n">2</div><h4>Sell a USD put @ 16.85</h4><p>The funding leg — its premium funds most of the call.</p></div>
+      <div class="step"><div class="n">3</div><h4>Net payoff</h4><p>Protected above 18.00, participating 16.85–18.00, giving up gains below 16.85.</p></div>
     </div>
 
-    <h4 style="margin-top:2.4rem">Strike selection — five candidates evaluated</h4>
-    <div class="table-scroll">
+    <h4 style="margin-top:2.8rem" class="reveal">Strike selection — five candidates evaluated</h4>
+    <div class="table-scroll reveal">
       <table class="data">
         <thead><tr><th>Strategy</th><th>Cap</th><th>Floor</th><th>Width</th><th>Net cost (MXN)</th><th>Verdict</th></tr></thead>
         <tbody>
@@ -413,18 +550,18 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         </tbody>
       </table>
     </div>
-    <p class="caption">Strategy B was chosen for the best balance of protection breadth, cost, and alignment with the forecast scenarios.</p>
+    <p class="caption reveal">Strategy B was chosen for the best balance of protection breadth, cost, and alignment with the forecast scenarios.</p>
 
-    <h3 style="margin-top:3rem">Strategy analysis</h3>
-    <div class="grid g2">
+    <h3 style="margin-top:3.4rem" class="reveal">Strategy analysis</h3>
+    <div class="grid g2 reveal">
       <div class="card lead-accent"><h4>When it helps</h4><p>Any move above the 18.00 cap — especially a USMCA-driven spike. At 20.00, the collar saves MXN 29.6M.</p></div>
       <div class="card lead-neg"><h4>When it costs</h4><p>Below the 16.85 floor, Arauco forgoes better spot. At 15.50 the opportunity cost is MXN 20M — but this is also the cheapest unhedged outcome.</p></div>
       <div class="card lead-neg"><h4>Residual risks</h4><p>Counterparty (ISDA), volume basis (&gt;20% deviation needs re-sizing), and mid-life mark-to-market.</p></div>
       <div class="card lead-accent"><h4>Why still preferable</h4><p>For 0.45% of notional, Arauco converts an unbounded tail risk into a bounded, planned cost.</p></div>
     </div>
 
-    <h3 style="margin-top:3rem">Valuation — inputs &amp; sensitivity</h3>
-    <div class="grid g2">
+    <h3 style="margin-top:3.4rem" class="reveal">Valuation — inputs &amp; sensitivity</h3>
+    <div class="grid g2 reveal">
       <div class="table-scroll">
         <table class="data">
           <thead><tr><th>Input</th><th>Value</th><th>Source</th></tr></thead>
@@ -452,11 +589,11 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         </table>
       </div>
     </div>
-    <p class="caption">The strategy's cost is stable across plausible volatility regimes — even at 14% the net cost stays under MXN 1.3M (0.50% of notional).</p>
+    <p class="caption reveal">The strategy's cost is stable across plausible volatility regimes — even at 14% the net cost stays under MXN 1.3M (0.50% of notional).</p>
 
-    <h3 style="margin-top:3rem">Interactive collar calculator</h3>
-    <p class="muted">Adjust the strikes, volatility or spot and the payoff chart, premiums and P&amp;L table update live. Defaults reflect the recommended Strategy B.</p>
-    <div class="widget">
+    <h3 style="margin-top:3.4rem" class="reveal">Interactive collar calculator</h3>
+    <p class="muted reveal">Adjust the strikes, volatility or spot and the payoff chart, premiums and P&amp;L table update live. Defaults reflect the recommended Strategy B.</p>
+    <div class="widget reveal">
       <div class="controls">
         <div class="control"><label>Cap (call strike) <span class="val" id="capVal">18.00</span></label><input type="range" id="cap" min="17.50" max="19.00" step="0.05" value="18.00"></div>
         <div class="control"><label>Floor (put strike) <span class="val" id="floorVal">16.85</span></label><input type="range" id="floor" min="16.00" max="17.50" step="0.05" value="16.85"></div>
@@ -464,35 +601,35 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         <div class="control"><label>Spot USD/MXN <span class="val" id="spotVal">17.25</span></label><input type="range" id="spot" min="16.50" max="18.50" step="0.05" value="17.25"></div>
       </div>
       <div class="metrics">
-        <div class="metric"><div class="k">Call premium /USD</div><div class="v" id="callPrem">—</div></div>
-        <div class="metric"><div class="k">Put premium /USD</div><div class="v" id="putPrem">—</div></div>
-        <div class="metric"><div class="k">Net cost (MXN)</div><div class="v" id="netCost">—</div></div>
-        <div class="metric"><div class="k">Forward 6m</div><div class="v" id="fwd">—</div></div>
+        <div class="metric"><div class="k">Call premium /USD</div><div class="v mono" id="callPrem">—</div></div>
+        <div class="metric"><div class="k">Put premium /USD</div><div class="v mono" id="putPrem">—</div></div>
+        <div class="metric"><div class="k">Net cost (MXN)</div><div class="v mono" id="netCost">—</div></div>
+        <div class="metric"><div class="k">Forward 6m</div><div class="v mono" id="fwd">—</div></div>
       </div>
-      <div id="payoffChart" class="chart" style="min-height:400px"></div>
+      <div id="payoffChart" class="chart" style="min-height:420px"></div>
     </div>
 
-    <h3 style="margin-top:3rem">P&amp;L across seven spot rates at maturity</h3>
-    <div class="table-scroll">
+    <h3 style="margin-top:3.4rem" class="reveal">P&amp;L across seven spot rates at maturity</h3>
+    <div class="table-scroll reveal">
       <table class="data">
         <thead><tr><th>Scenario</th><th>USD/MXN at T</th><th>Cost without hedge (MXN M)</th><th>Cost with collar (MXN M)</th><th>Strategy P&amp;L (MXN M)</th></tr></thead>
         <tbody id="pnlBody"></tbody>
       </table>
     </div>
-    <p class="caption">Net of the MXN 1.16M premium. Positive (green) = collar saves money; negative (red) = opportunity cost in a strong-peso scenario.</p>
+    <p class="caption reveal">Net of the MXN 1.16M premium. Positive (green) = collar saves money; negative (red) = opportunity cost in a strong-peso scenario.</p>
 
-    <hr class="divider" style="margin:3.5rem 0">
+    <hr class="divider" style="margin:4rem 0">
 
-    <h3>Final executive recommendation</h3>
-    <div class="brief">
+    <h3 class="reveal">Final executive recommendation</h3>
+    <div class="brief reveal">
       <p>We recommend executing a <span class="hl">6-month USD/MXN collar at 18.00 / 16.85</span> for Arauco México's
         urea and methanol exposure, with a total notional of <span class="hl">$14.82M USD</span>. Net upfront cost:
         <span class="hl">MXN 1.16M</span>.</p>
       <div class="brief-grid">
         <div class="item"><div class="k">Strategy</div><div class="v">Low-cost collar</div></div>
-        <div class="item"><div class="k">Hedge ratio</div><div class="v">100% of USD payable</div></div>
+        <div class="item"><div class="k">Hedge ratio</div><div class="v">100%</div></div>
         <div class="item"><div class="k">Horizon</div><div class="v">6 months</div></div>
-        <div class="item"><div class="k">Net cost</div><div class="v">0.45% of notional</div></div>
+        <div class="item"><div class="k">Net cost</div><div class="v">0.45%</div></div>
       </div>
       <ul>
         <li>Caps the downside at 18.00 — <b>MXN 29.6M of protection</b> in the bearish-peso crisis scenario.</li>
@@ -500,11 +637,11 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
         <li>Aligns the cap with the USMCA stress level (review begins July 1, 2026).</li>
         <li><b>Next steps:</b> obtain ISDA quotes from BBVA / Banorte / Citi México, confirm volumes with procurement, and execute as a single package.</li>
       </ul>
-      <p class="muted" style="font-size:.9rem">This recommendation does not claim to predict the future; it is based on the best available market information as of May 2026.</p>
+      <p style="font-size:.9rem;opacity:.85">This recommendation does not claim to predict the future; it is based on the best available market information as of May 2026.</p>
     </div>
 
-    <h3 style="margin-top:3rem">Sources</h3>
-    <ol class="refs">
+    <h3 style="margin-top:3.4rem" class="reveal">Sources</h3>
+    <ol class="refs reveal">
       <li><b>Banco de México</b> — USD/MXN FIX, Monetary Policy Statement (May 7, 2026), Encuesta de Expectativas.</li>
       <li><b>INEGI</b> — INPC April 2026; GDP flash estimate Q1 2026; ENEC construction survey.</li>
       <li><b>Federal Reserve</b> — FOMC Statement (Apr 29, 2026); SEP (Mar 2026); H.15 rates.</li>
@@ -528,7 +665,7 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 <footer>
   <div class="wrap cols">
     <div>
-      <h4>Shield Consulting</h4>
+      <div class="brand-f">Shield Consulting</div>
       <p>A student consulting microsite for the International Financial Management course (Group 334),
          ITESM Guadalajara. Training partner: Arauco Industria de México S.A. de C.V.</p>
     </div>
@@ -557,12 +694,12 @@ footer .legal{margin-top:2rem;padding-top:1.2rem;border-top:1px solid var(--line
 </main>
 
 <script>
-/* ===================== data (from the deliverables) ===================== */
-const ACCENT='#4F6F64', TAUPE='#B8AE9C', INK='#1B1B1B', GREY='#A8A8A2', POS='#3F7A5A', NEG='#B0584C';
-const FONT={family:'Inter, system-ui, sans-serif', color:'#1B1B1B', size:12};
+/* ===================== data ===================== */
+const EMERALD='#1F5C45', EMERALD_B='#2E7C5C', GOLD='#C2A04C', GOLD_D='#9E7E32', GREY='#A9A491', INK='#1A211D', POS='#2E7C5C', NEG='#B0584C';
+const FONT={family:'Inter, system-ui, sans-serif', color:'#3C463F', size:12};
 const DATA={
   inflation:{categories:['Headline CPI (Apr)','Core CPI (Apr)','Target','Forecast end-2026'],
-    mexico:[4.45,4.26,3.0,3.75], us:[3.8,2.8,2.0,2.75]},                 // forecasts = range midpoints
+    mexico:[4.45,4.26,3.0,3.75], us:[3.8,2.8,2.0,2.75]},
   rates:{categories:['Current (May 2026)','Forecast end-2026'], banxico:[6.50,6.40], fed:[3.625,3.575]},
   gdp:{categories:['Q1 2026 (QoQ)','Full-year 2025','2026 forecast'], mexico:[-0.8,0.8,1.2], us:[0.5,2.1,2.0]},
   fx:{labels:['Banxico Encuesta','Citi Survey','BBVA Research','Banorte/Hacienda','Vanguard/B.Base','Shield fwd (6m)'],
@@ -571,25 +708,25 @@ const DATA={
 };
 const baseLayout=(yT,xT)=>({font:FONT,paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
   margin:{l:54,r:16,t:12,b:46},legend:{orientation:'h',y:1.16,font:{size:11}},
-  yaxis:{title:{text:yT,font:{size:12}},gridcolor:'rgba(27,27,27,.07)',zerolinecolor:'rgba(27,27,27,.18)'},
-  xaxis:{title:{text:xT||'',font:{size:12}},gridcolor:'rgba(27,27,27,.04)'}});
+  yaxis:{title:{text:yT,font:{size:12}},gridcolor:'rgba(20,52,42,.08)',zerolinecolor:'rgba(20,52,42,.2)'},
+  xaxis:{title:{text:xT||'',font:{size:12}},gridcolor:'rgba(20,52,42,.04)'}});
 const CONFIG={responsive:true,displayModeBar:false};
 
 function renderMacroCharts(){
   if(typeof Plotly==='undefined')return;
   Plotly.newPlot('chart-inflation',[
-    {x:DATA.inflation.categories,y:DATA.inflation.mexico,name:'Mexico',type:'bar',marker:{color:ACCENT}},
-    {x:DATA.inflation.categories,y:DATA.inflation.us,name:'United States',type:'bar',marker:{color:TAUPE}}
+    {x:DATA.inflation.categories,y:DATA.inflation.mexico,name:'Mexico',type:'bar',marker:{color:EMERALD}},
+    {x:DATA.inflation.categories,y:DATA.inflation.us,name:'United States',type:'bar',marker:{color:GOLD}}
   ],{...baseLayout('% YoY'),barmode:'group'},CONFIG);
   Plotly.newPlot('chart-rates',[
-    {x:DATA.rates.categories,y:DATA.rates.banxico,name:'Banxico',type:'bar',marker:{color:ACCENT}},
-    {x:DATA.rates.categories,y:DATA.rates.fed,name:'Federal Reserve',type:'bar',marker:{color:TAUPE}}
+    {x:DATA.rates.categories,y:DATA.rates.banxico,name:'Banxico',type:'bar',marker:{color:EMERALD}},
+    {x:DATA.rates.categories,y:DATA.rates.fed,name:'Federal Reserve',type:'bar',marker:{color:GOLD}}
   ],{...baseLayout('Policy rate (%)'),barmode:'group'},CONFIG);
   Plotly.newPlot('chart-gdp',[
-    {x:DATA.gdp.categories,y:DATA.gdp.mexico,name:'Mexico',type:'bar',marker:{color:ACCENT}},
-    {x:DATA.gdp.categories,y:DATA.gdp.us,name:'United States',type:'bar',marker:{color:TAUPE}}
+    {x:DATA.gdp.categories,y:DATA.gdp.mexico,name:'Mexico',type:'bar',marker:{color:EMERALD}},
+    {x:DATA.gdp.categories,y:DATA.gdp.us,name:'United States',type:'bar',marker:{color:GOLD}}
   ],{...baseLayout('% growth'),barmode:'group'},CONFIG);
-  const colors=DATA.fx.values.map(v=>v>=19?NEG:(v<=17.6?POS:INK));
+  const colors=DATA.fx.values.map(v=>v>=19?NEG:(v<=17.6?EMERALD:GOLD_D));
   Plotly.newPlot('chart-fx',[
     {y:DATA.fx.labels,x:DATA.fx.values,type:'bar',orientation:'h',marker:{color:colors},
      text:DATA.fx.values.map(v=>v.toFixed(2)),textposition:'auto'}
@@ -626,10 +763,10 @@ function recalcCollar(){
   if(typeof Plotly!=='undefined'){
     Plotly.react('payoffChart',[
       {x:range,y:unhedged,name:'Cost without hedge',mode:'lines',line:{color:GREY,width:2,dash:'dash'}},
-      {x:range,y:hedged,name:'Cost with collar',mode:'lines',line:{color:ACCENT,width:3}}
+      {x:range,y:hedged,name:'Cost with collar',mode:'lines',line:{color:EMERALD,width:3}}
     ],{...baseLayout('Total cost of $14.82M (MXN millions)','USD/MXN at maturity'),
-      shapes:[{type:'line',x0:floor,x1:floor,y0:220,y1:320,line:{color:GREY,width:1,dash:'dot'}},
-              {type:'line',x0:cap,x1:cap,y0:220,y1:320,line:{color:GREY,width:1,dash:'dot'}}],
+      shapes:[{type:'line',x0:floor,x1:floor,y0:220,y1:320,line:{color:GOLD,width:1,dash:'dot'}},
+              {type:'line',x0:cap,x1:cap,y0:220,y1:320,line:{color:GOLD,width:1,dash:'dot'}}],
       annotations:[{x:floor,y:318,text:'Floor '+floor.toFixed(2),showarrow:false,font:{size:10,color:NEG}},
                    {x:cap,y:318,text:'Cap '+cap.toFixed(2),showarrow:false,font:{size:10,color:POS}}]},CONFIG);
   }
@@ -641,16 +778,39 @@ function recalcCollar(){
   }).join('');}
 }
 
-/* ===================== section navigation ===================== */
+/* ===================== count-up for KPIs ===================== */
+function countUp(el){
+  const target=parseFloat(el.getAttribute('data-count')); if(isNaN(target))return;
+  const dec=parseInt(el.getAttribute('data-decimals')||'0',10);
+  const pre=el.getAttribute('data-prefix')||''; const suf=el.getAttribute('data-suffix')||'';
+  const usuf=el.getAttribute('data-usuffix')||''; // styled unit suffix
+  const dur=1100, t0=performance.now();
+  function frame(now){
+    const p=Math.min((now-t0)/dur,1); const e=1-Math.pow(1-p,3); // easeOutCubic
+    const val=(target*e).toFixed(dec);
+    el.innerHTML=pre+val+suf+(usuf?'<span class="u">'+usuf+'</span>':'');
+    if(p<1)requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ===================== section navigation + reveal ===================== */
 const initialized={macro:false};
 function resizeAll(ids){if(typeof Plotly==='undefined')return;
   ids.forEach(i=>{const e=document.getElementById(i);if(e&&e.querySelector('.plotly'))Plotly.Plots.resize(e);});}
+function revealStagger(view){
+  const items=view.querySelectorAll('.reveal');
+  items.forEach((el,i)=>{el.style.animation='none';void el.offsetWidth;el.style.animationDelay=(i*70)+'ms';el.style.animation='';});
+}
 function showView(id){
   if(!document.getElementById(id)||!document.getElementById(id).classList.contains('view'))id='home';
-  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));
+  const view=document.getElementById(id);
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v===view));
   document.querySelectorAll('[data-target]').forEach(a=>a.classList.toggle('current',a.getAttribute('data-target')===id));
   document.querySelector('.nav-links').classList.remove('open');
   window.scrollTo(0,0);
+  revealStagger(view);
+  if(id==='home'){ view.querySelectorAll('[data-count]').forEach(countUp); }
   if(id==='macro'){ if(!initialized.macro){renderMacroCharts();initialized.macro=true;} else resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']); }
   if(id==='hedging'){ recalcCollar(); }
   if(history.replaceState)history.replaceState(null,'','#'+id);
@@ -661,8 +821,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   ['cap','floor','vol','spot'].forEach(id=>{const e=document.getElementById(id);if(e)e.addEventListener('input',recalcCollar);});
   showView((location.hash||'home').replace('#',''));
   window.addEventListener('resize',()=>{
-    const active=document.querySelector('.view.active');
-    if(!active)return;
+    const active=document.querySelector('.view.active');if(!active)return;
     if(active.id==='macro')resizeAll(['chart-inflation','chart-rates','chart-gdp','chart-fx']);
     if(active.id==='hedging')resizeAll(['payoffChart']);
   });
